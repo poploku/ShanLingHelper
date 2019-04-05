@@ -9,24 +9,31 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
+import model.ShanLingFileModel;
 import pub.devrel.easypermissions.EasyPermissions;
 import studio.carbonylgroup.textfieldboxes.ExtendedEditText;
-import studio.carbonylgroup.textfieldboxes.TextFieldBoxes;
 import util.ToastUtil;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private RecyclerView shanLingFileListRecyclerView;
+    private ShanLingFileListAdapter shanLingFileListAdapter;
+    private List<ShanLingFileModel> shanLingFileModelList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         toolbar = (Toolbar) findViewById(R.id.tb_main);
         drawerLayout = (DrawerLayout) findViewById(R.id.dl_main);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
+        shanLingFileListRecyclerView = (RecyclerView) findViewById(R.id.rv_shanling_file_list);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -68,6 +76,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     return true;
                 }
         );
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        shanLingFileListRecyclerView.setLayoutManager(layoutManager);
+        shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
+        shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
     }
 
     @Override
