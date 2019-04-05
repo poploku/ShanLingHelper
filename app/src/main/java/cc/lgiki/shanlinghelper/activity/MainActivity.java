@@ -17,14 +17,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
 import model.ShanLingFileModel;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 import pub.devrel.easypermissions.EasyPermissions;
 import studio.carbonylgroup.textfieldboxes.ExtendedEditText;
+import util.HttpUtil;
 import util.ToastUtil;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
@@ -80,6 +85,20 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListRecyclerView.setLayoutManager(layoutManager);
         shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
         shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
+    }
+
+    private void getShanLingFileList(String path) {
+        HttpUtil.sendOkHttpRequest("", new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+            }
+        });
     }
 
     @Override

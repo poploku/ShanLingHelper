@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 import cc.lgiki.shanlinghelper.R;
@@ -29,6 +31,10 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
     public void onBindViewHolder(@NonNull ShanLingFileItemViewHolder shanLingFileItemViewHolder, int i) {
         ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(i);
         shanLingFileItemViewHolder.fileName.setText(shanLingFileModel.getName());
+        int fileIconResourceId = (shanLingFileModel.getSize() != null) ? R.drawable.ic_music : R.drawable.ic_folder;
+        Glide.with(context)
+                .load(fileIconResourceId)
+                .into(shanLingFileItemViewHolder.fileIcon);
     }
 
     @Override

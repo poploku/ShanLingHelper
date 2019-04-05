@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:prefix="http://"
-            app:suffix=":8888/" />
+            app:suffix=":8888" />
 
     </studio.carbonylgroup.textfieldboxes.TextFieldBoxes>
 

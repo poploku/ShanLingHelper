@@ -3,14 +3,21 @@ package model;
 public class ShanLingFileModel {
     private String path;
     private String name;
-    private long ctime;
-    private long size;
+    private Long ctime;
+    private Long size;
 
-    public ShanLingFileModel(String path, String name, long ctime, long size) {
+    public ShanLingFileModel(String path, String name, Long ctime, Long size) {
         this.path = path;
         this.name = name;
         this.ctime = ctime;
         this.size = size;
+    }
+
+    public ShanLingFileModel(String path, String name, Long ctime) {
+        this.path = path;
+        this.name = name;
+        this.ctime = ctime;
+        this.size = null;
     }
 
     public String getPath() {
@@ -29,19 +36,19 @@ public class ShanLingFileModel {
         this.name = name;
     }
 
-    public long getCtime() {
+    public Long getCtime() {
         return ctime;
     }
 
-    public void setCtime(long ctime) {
+    public void setCtime(Long ctime) {
         this.ctime = ctime;
     }
 
-    public long getSize() {
+    public Long getSize() {
         return size;
     }
 
-    public void setSize(long size) {
+    public void setSize(Long size) {
         this.size = size;
     }
 }
