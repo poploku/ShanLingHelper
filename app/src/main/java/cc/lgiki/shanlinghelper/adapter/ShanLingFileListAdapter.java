@@ -14,10 +14,13 @@ import java.util.List;
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.holder.ShanLingFileItemViewHolder;
 import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
+import cc.lgiki.shanlinghelper.util.TextUtil;
 
 public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileItemViewHolder> {
+    private static final String TAG = "ShanLingFileListAdapter";
     private Context context;
     private List<ShanLingFileModel> shanLingFileModelList;
+    private OnItemClickListener onItemClickListener;
 
     @NonNull
     @Override
@@ -31,10 +34,15 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
     public void onBindViewHolder(@NonNull ShanLingFileItemViewHolder shanLingFileItemViewHolder, int i) {
         ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(i);
         shanLingFileItemViewHolder.fileName.setText(shanLingFileModel.getName());
+        shanLingFileItemViewHolder.fileCreateTime.setText(TextUtil.timestampToString(shanLingFileModel.getCtime()));
+        if (shanLingFileModel.getSize() != null) {
+            shanLingFileItemViewHolder.fileSize.setText(TextUtil.convertByteToMegabyte(shanLingFileModel.getSize()) + "MB");
+        }
         int fileIconResourceId = (shanLingFileModel.getSize() != null) ? R.drawable.ic_music : R.drawable.ic_folder;
         Glide.with(context)
                 .load(fileIconResourceId)
                 .into(shanLingFileItemViewHolder.fileIcon);
+        shanLingFileItemViewHolder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(v, i));
     }
 
     @Override
@@ -45,5 +53,13 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
     public ShanLingFileListAdapter(Context context, List<ShanLingFileModel> shanLingFileModelList) {
         this.context = context;
         this.shanLingFileModelList = shanLingFileModelList;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 }

@@ -11,12 +11,14 @@ import cc.lgiki.shanlinghelper.R;
 public class ShanLingFileItemViewHolder extends RecyclerView.ViewHolder {
     public ImageView fileIcon;
     public TextView fileName;
-    public TextView fileInfo;
+    public TextView fileCreateTime;
+    public TextView fileSize;
 
     public ShanLingFileItemViewHolder(@NonNull View itemView) {
         super(itemView);
         fileIcon = (ImageView) itemView.findViewById(R.id.iv_file_icon);
         fileName = (TextView) itemView.findViewById(R.id.tv_file_name);
-        fileInfo = (TextView) itemView.findViewById(R.id.tv_file_info);
+        fileCreateTime = (TextView) itemView.findViewById(R.id.tv_file_create_time);
+        fileSize = (TextView) itemView.findViewById(R.id.tv_file_size);
     }
 }

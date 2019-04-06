@@ -6,6 +6,8 @@
     <string name="permission_rationale">Program need the permission of read and write to external storage for upload file to player</string>
     <string name="message_no_permission">Can not get the permission of read and write to external storage, please restart this program and allow it get the permission</string>
     <string name="message_no_enter_shanling_url">Please input the URL of ShanLing WiFi transfer</string>
+    <string name="message_shanling_url_error">The URL of ShanLing WiFi transfer is incorrect, please check and retry</string>
+    <string name="message_connect_shanling_wifi_transfer_error">Can not connect to ShanLing WiFi transfer, please check the network connection or check the URL</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
 </resources>

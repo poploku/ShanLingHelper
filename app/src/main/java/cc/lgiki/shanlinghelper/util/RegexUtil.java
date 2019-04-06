@@ -8,9 +8,10 @@ public class RegexUtil {
         if (ip.length() < 7 || ip.length() > 15 || "".equals(ip)) {
             return false;
         }
-        String regex = "([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}";
-        Pattern pat = Pattern.compile(regex);
-        Matcher mat = pat.matcher(ip);
-        return mat.find();
+        final String IPADDRESS_PATTERN =
+                "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+        Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
+        Matcher matcher = pattern.matcher(ip);
+        return matcher.matches();
     }
 }

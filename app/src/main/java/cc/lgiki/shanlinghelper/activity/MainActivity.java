@@ -13,11 +13,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.PopupWindow;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -25,9 +23,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONArray;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -72,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         if (shanLingWiFiTransferBaseUrl == null || "".equals(shanLingWiFiTransferBaseUrl)) {
             showDialog();
         } else {
-            getShanLingFileList(pathStack.peek());
+            refreshShanLingFileList();
         }
     }
 
@@ -97,6 +96,18 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListRecyclerView.setLayoutManager(layoutManager);
         shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
         shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
+        shanLingFileListAdapter.setOnItemClickListener(new ShanLingFileListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
+                try{
+                    pathStack.push(URLEncoder.encode(shanLingFileModel.getPath(), "UTF-8"));
+                    refreshShanLingFileList();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void showDialog() {
@@ -109,12 +120,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 .setPositiveButton(R.string.btn_ok, ((dialog, which) -> {
                     String shanLingWiFiTransferIp = extendedEditText.getText().toString();
                     if (!RegexUtil.isIPAddress(shanLingWiFiTransferIp)) {
-                        //TODO
+                        ToastUtil.showShortToast(this, R.string.message_shanling_url_error);
+                        showDialog();
                     } else {
                         this.shanLingWiFiTransferBaseUrl = "http://" + shanLingWiFiTransferIp + ":8888/";
                         sharedPreferencesUtil.putString("url", shanLingWiFiTransferBaseUrl);
+                        refreshShanLingFileList();
                     }
-                    getShanLingFileList(pathStack.peek());
                 }))
                 .setNegativeButton(R.string.btn_cancel, ((dialog, which) -> {
                     ToastUtil.showLongToast(this, R.string.message_no_enter_shanling_url);
@@ -127,19 +139,19 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         pathStack.push("%2Fmnt%2Fmmc%2F");
     }
 
-    private void getShanLingFileList(String path) {
-        String url = shanLingWiFiTransferBaseUrl + "list?path=" + path;
-        Log.d(TAG, "getShanLingFileList: " + url);
+    private void refreshShanLingFileList() {
+        String url = shanLingWiFiTransferBaseUrl + "list?path=" + pathStack.peek();
         HttpUtil.sendOkHttpRequest(url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error);
                 Log.d(TAG, "onFailure: " + e.getMessage());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                shanLingFileModelList.clear();
                 String responseString = response.body().string();
-                Log.d(TAG, "onResponse: " + responseString);
                 JsonParser parser = new JsonParser();
                 JsonArray rootJsonArray = parser.parse(responseString).getAsJsonArray();
                 Gson gson = new Gson();
