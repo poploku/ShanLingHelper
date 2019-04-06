@@ -1,4 +1,4 @@
-package util;
+package cc.lgiki.shanlinghelper.util;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

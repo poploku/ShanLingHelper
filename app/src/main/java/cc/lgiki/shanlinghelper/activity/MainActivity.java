@@ -12,33 +12,50 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.PopupWindow;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONArray;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
-import adapter.ShanLingFileListAdapter;
+import cc.lgiki.shanlinghelper.adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
-import model.ShanLingFileModel;
+import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import pub.devrel.easypermissions.EasyPermissions;
 import studio.carbonylgroup.textfieldboxes.ExtendedEditText;
-import util.HttpUtil;
-import util.ToastUtil;
+import cc.lgiki.shanlinghelper.util.HttpUtil;
+import cc.lgiki.shanlinghelper.util.RegexUtil;
+import cc.lgiki.shanlinghelper.util.SharedPreferencesUtil;
+import cc.lgiki.shanlinghelper.util.ToastUtil;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
+    private static final String TAG = "MainActivity";
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private RecyclerView shanLingFileListRecyclerView;
     private ShanLingFileListAdapter shanLingFileListAdapter;
     private List<ShanLingFileModel> shanLingFileModelList = new ArrayList<>();
+    private String shanLingWiFiTransferBaseUrl;
+    private SharedPreferencesUtil sharedPreferencesUtil;
+    private Stack<String> pathStack = new Stack<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,19 +66,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             EasyPermissions.requestPermissions(this, this.getResources().getString(R.string.permission_rationale), 1, permissions);
         }
         initView();
-        View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_shanling_url_input, null);
-        ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.hint_enter_shanling_url)
-                .setView(view)
-                .setPositiveButton(R.string.btn_ok, ((dialog, which) -> {
-                    ToastUtil.showLongToast(this, extendedEditText.getText().toString());
-                }))
-                .setNegativeButton(R.string.btn_cancel, ((dialog, which) -> {
-                    ToastUtil.showLongToast(this, R.string.message_no_enter_shanling_url);
-                    finish();
-                }))
-                .show();
+        initData();
+        sharedPreferencesUtil = SharedPreferencesUtil.getInstance(this, "config");
+        shanLingWiFiTransferBaseUrl = sharedPreferencesUtil.getString("url");
+        if (shanLingWiFiTransferBaseUrl == null || "".equals(shanLingWiFiTransferBaseUrl)) {
+            showDialog();
+        } else {
+            getShanLingFileList(pathStack.peek());
+        }
     }
 
     private void initView() {
@@ -87,16 +99,56 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
     }
 
+    private void showDialog() {
+        View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_shanling_url_input, null, false);
+        ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.hint_enter_shanling_url)
+                .setView(view)
+                .setCancelable(false)
+                .setPositiveButton(R.string.btn_ok, ((dialog, which) -> {
+                    String shanLingWiFiTransferIp = extendedEditText.getText().toString();
+                    if (!RegexUtil.isIPAddress(shanLingWiFiTransferIp)) {
+                        //TODO
+                    } else {
+                        this.shanLingWiFiTransferBaseUrl = "http://" + shanLingWiFiTransferIp + ":8888/";
+                        sharedPreferencesUtil.putString("url", shanLingWiFiTransferBaseUrl);
+                    }
+                    getShanLingFileList(pathStack.peek());
+                }))
+                .setNegativeButton(R.string.btn_cancel, ((dialog, which) -> {
+                    ToastUtil.showLongToast(this, R.string.message_no_enter_shanling_url);
+                    finish();
+                }))
+                .show();
+    }
+
+    private void initData() {
+        pathStack.push("%2Fmnt%2Fmmc%2F");
+    }
+
     private void getShanLingFileList(String path) {
-        HttpUtil.sendOkHttpRequest("", new Callback() {
+        String url = shanLingWiFiTransferBaseUrl + "list?path=" + path;
+        Log.d(TAG, "getShanLingFileList: " + url);
+        HttpUtil.sendOkHttpRequest(url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
+                Log.d(TAG, "onFailure: " + e.getMessage());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-
+                String responseString = response.body().string();
+                Log.d(TAG, "onResponse: " + responseString);
+                JsonParser parser = new JsonParser();
+                JsonArray rootJsonArray = parser.parse(responseString).getAsJsonArray();
+                Gson gson = new Gson();
+                for (JsonElement element : rootJsonArray) {
+                    ShanLingFileModel shanLingFileModel = gson.fromJson(element, new TypeToken<ShanLingFileModel>() {
+                    }.getType());
+                    shanLingFileModelList.add(shanLingFileModel);
+                }
+                runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
             }
         });
     }

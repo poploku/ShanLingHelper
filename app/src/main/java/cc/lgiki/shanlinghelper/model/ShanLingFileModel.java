@@ -1,4 +1,4 @@
-package model;
+package cc.lgiki.shanlinghelper.model;
 
 public class ShanLingFileModel {
     private String path;

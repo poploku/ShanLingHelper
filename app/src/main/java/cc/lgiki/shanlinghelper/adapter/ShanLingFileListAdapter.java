@@ -1,4 +1,4 @@
-package adapter;
+package cc.lgiki.shanlinghelper.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -12,8 +12,8 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 import cc.lgiki.shanlinghelper.R;
-import holder.ShanLingFileItemViewHolder;
-import model.ShanLingFileModel;
+import cc.lgiki.shanlinghelper.holder.ShanLingFileItemViewHolder;
+import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
 
 public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileItemViewHolder> {
     private Context context;

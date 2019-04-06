@@ -1,4 +1,4 @@
-package util;
+package cc.lgiki.shanlinghelper.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
