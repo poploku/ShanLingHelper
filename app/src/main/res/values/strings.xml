@@ -10,4 +10,5 @@
     <string name="message_connect_shanling_wifi_transfer_error">Can not connect to ShanLing WiFi transfer, please check the network connection or check the URL</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
+    <string name="menu_exit">Exit</string>
 </resources>

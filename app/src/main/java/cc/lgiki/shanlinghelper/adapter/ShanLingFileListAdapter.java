@@ -33,7 +33,8 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
 
     @Override
     public void onBindViewHolder(@NonNull ShanLingFileItemViewHolder shanLingFileItemViewHolder, int i) {
-        ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(i);
+        int position = shanLingFileItemViewHolder.getAdapterPosition();
+        ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
         shanLingFileItemViewHolder.fileName.setText(shanLingFileModel.getName());
         shanLingFileItemViewHolder.fileCreateTime.setText(TextUtil.timestampToString(shanLingFileModel.getCtime()));
         if (shanLingFileModel.isFile()) {
@@ -43,7 +44,11 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
         Glide.with(context)
                 .load(fileIconResourceId)
                 .into(shanLingFileItemViewHolder.fileIcon);
-        shanLingFileItemViewHolder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(v, i));
+        shanLingFileItemViewHolder.itemView.setClickable(false);
+        if (!shanLingFileModel.isFile()) {
+            shanLingFileItemViewHolder.itemView.setClickable(true);
+            shanLingFileItemViewHolder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(v, position));
+        }
 
     }
 

@@ -14,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -26,7 +27,6 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -56,6 +56,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     private String shanLingWiFiTransferBaseUrl;
     private SharedPreferencesUtil sharedPreferencesUtil;
     private Stack<String> pathStack = new Stack<>();
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,10 +105,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
         shanLingFileListAdapter.setOnItemClickListener((view, position) -> {
             ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
-            try{
-                pathStack.push(URLEncoder.encode(shanLingFileModel.getPath(), "UTF-8"));
+            try {
+                String newPath = URLEncoder.encode(shanLingFileModel.getPath(), "UTF-8");
+                if(!pathStack.peek().equals(newPath)) {
+                    pathStack.push(newPath);
+                }
                 refreshShanLingFileList();
-            }catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -139,10 +148,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
 
     @Override
     public void onBackPressed() {
-        if(pathStack.size() > 1) {
+        if (pathStack.size() > 1) {
             pathStack.pop();
             refreshShanLingFileList();
-        }else {
+        } else {
             super.onBackPressed();
         }
     }
@@ -152,23 +161,30 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         HttpUtil.sendOkHttpRequest(url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error));
+                runOnUiThread(() -> {
+                    ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error);
+                    showDialog();
+                });
                 Log.d(TAG, "onFailure: " + e.getMessage());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                shanLingFileModelList.clear();
-                String responseString = response.body().string();
-                JsonParser parser = new JsonParser();
-                JsonArray rootJsonArray = parser.parse(responseString).getAsJsonArray();
-                Gson gson = new Gson();
-                for (JsonElement element : rootJsonArray) {
-                    ShanLingFileModel shanLingFileModel = gson.fromJson(element, new TypeToken<ShanLingFileModel>() {
-                    }.getType());
-                    shanLingFileModelList.add(shanLingFileModel);
+                try{
+                    String responseString = response.body().string();
+                    JsonParser parser = new JsonParser();
+                    JsonArray rootJsonArray = parser.parse(responseString).getAsJsonArray();
+                    Gson gson = new Gson();
+                    shanLingFileModelList.clear();
+                    for (JsonElement element : rootJsonArray) {
+                        ShanLingFileModel shanLingFileModel = gson.fromJson(element, new TypeToken<ShanLingFileModel>() {
+                        }.getType());
+                        shanLingFileModelList.add(shanLingFileModel);
+                    }
+                    runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
+                }catch (Exception e) {
+                    e.printStackTrace();
                 }
-                runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
             }
         });
     }
@@ -184,6 +200,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         switch (item.getItemId()) {
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
+                break;
+            case R.id.menu_exit:
+                finish();
                 break;
             default:
                 break;

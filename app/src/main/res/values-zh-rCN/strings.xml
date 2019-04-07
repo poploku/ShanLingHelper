@@ -11,4 +11,5 @@
     <string name="message_connect_shanling_wifi_transfer_error">无法连接到山灵WiFi传歌，请检查网络状态或重新输入WiFi传歌URL</string>
     <string name="btn_ok">确认</string>
     <string name="btn_cancel">取消</string>
+    <string name="menu_exit">退出</string>
 </resources>
