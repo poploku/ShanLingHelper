@@ -1,6 +1,6 @@
 package cc.lgiki.shanlinghelper.model;
 
-public class ShanLingFileModel {
+public class ShanLingFileModel implements Comparable<ShanLingFileModel> {
     private String path;
     private String name;
     private Long ctime;
@@ -54,5 +54,10 @@ public class ShanLingFileModel {
 
     public boolean isFile() {
         return this.size != null;
+    }
+
+    @Override
+    public int compareTo(ShanLingFileModel o) {
+        return this.name.compareTo(o.name);
     }
 }

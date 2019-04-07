@@ -12,5 +12,6 @@
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="menu_exit">Exit</string>
+    <string name="menu_new_folder">New Folder</string>
     <string name="title_upload_activity">Confirm upload the files below?</string>
 </resources>

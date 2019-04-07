@@ -32,6 +32,8 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -122,9 +124,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 e.printStackTrace();
             }
         });
-        uploadButton.setOnClickListener((v) -> {
-            FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE);
-        });
+        uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
     }
 
     private void showDialog() {
@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                         }.getType());
                         shanLingFileModelList.add(shanLingFileModel);
                     }
+                    Collections.sort(shanLingFileModelList);
                     runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -229,6 +230,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 break;
             case R.id.menu_exit:
                 finish();
+                break;
+            case R.id.menu_new_folder:
                 break;
             default:
                 break;

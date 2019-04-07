@@ -2,6 +2,7 @@ package cc.lgiki.shanlinghelper.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import cc.lgiki.shanlinghelper.adapter.UploadFileListAdapter;
 public class UploadActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private List<String> uploadFilePathList;
+    private FloatingActionButton submitUploadButton;
     private RecyclerView uploadFileListRecyclerView;
     private UploadFileListAdapter uploadFileListAdapter;
 
@@ -34,6 +36,7 @@ public class UploadActivity extends AppCompatActivity {
     private void initView() {
         toolbar = (Toolbar) findViewById(R.id.tb_upload);
         uploadFileListRecyclerView = (RecyclerView) findViewById(R.id.rv_upload_file_list);
+        submitUploadButton = (FloatingActionButton) findViewById(R.id.fab_upload_submit);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -44,6 +47,9 @@ public class UploadActivity extends AppCompatActivity {
         uploadFileListRecyclerView.setLayoutManager(layoutManager);
         uploadFileListAdapter = new UploadFileListAdapter(this, uploadFilePathList);
         uploadFileListRecyclerView.setAdapter(uploadFileListAdapter);
+        submitUploadButton.setOnClickListener((v -> {
+            //TODO: Complete file upload using OKHttp
+        }));
     }
 
     public static void actionStart(Context context, List<String> uploadFilePathList) {

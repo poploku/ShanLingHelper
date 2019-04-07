@@ -13,5 +13,6 @@
     <string name="btn_ok">确认</string>
     <string name="btn_cancel">取消</string>
     <string name="menu_exit">退出</string>
+    <string name="menu_new_folder">新建文件夹</string>
     <string name="title_upload_activity">确认上传以下文件?</string>
 </resources>
