@@ -1,7 +1,11 @@
 package cc.lgiki.shanlinghelper.activity;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,6 +38,7 @@ import java.util.Stack;
 import cc.lgiki.shanlinghelper.adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
+import me.rosuh.filepicker.config.FilePickerManager;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -55,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     private List<ShanLingFileModel> shanLingFileModelList = new ArrayList<>();
     private String shanLingWiFiTransferBaseUrl;
     private SharedPreferencesUtil sharedPreferencesUtil;
+    private FloatingActionButton uploadButton;
     private Stack<String> pathStack = new Stack<>();
 
     @Override
@@ -87,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         drawerLayout = (DrawerLayout) findViewById(R.id.dl_main);
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         shanLingFileListRecyclerView = (RecyclerView) findViewById(R.id.rv_shanling_file_list);
+        uploadButton = (FloatingActionButton) findViewById(R.id.fab_upload_here);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -107,13 +114,16 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
             try {
                 String newPath = URLEncoder.encode(shanLingFileModel.getPath(), "UTF-8");
-                if(!pathStack.peek().equals(newPath)) {
+                if (!pathStack.peek().equals(newPath)) {
                     pathStack.push(newPath);
                 }
                 refreshShanLingFileList();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        });
+        uploadButton.setOnClickListener((v) -> {
+            FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE);
         });
     }
 
@@ -170,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                try{
+                try {
                     String responseString = response.body().string();
                     JsonParser parser = new JsonParser();
                     JsonArray rootJsonArray = parser.parse(responseString).getAsJsonArray();
@@ -182,11 +192,27 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                         shanLingFileModelList.add(shanLingFileModel);
                     }
                     runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
-                }catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            case FilePickerManager.REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    List<String> selectedFiles = FilePickerManager.INSTANCE.obtainData();
+                    UploadActivity.actionStart(this, selectedFiles);
+                } else {
+                    ToastUtil.showShortToast(this, R.string.message_no_select_file);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
