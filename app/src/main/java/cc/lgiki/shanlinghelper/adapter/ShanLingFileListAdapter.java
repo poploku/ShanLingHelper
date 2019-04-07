@@ -3,6 +3,7 @@ package cc.lgiki.shanlinghelper.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,14 +36,15 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
         ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(i);
         shanLingFileItemViewHolder.fileName.setText(shanLingFileModel.getName());
         shanLingFileItemViewHolder.fileCreateTime.setText(TextUtil.timestampToString(shanLingFileModel.getCtime()));
-        if (shanLingFileModel.getSize() != null) {
+        if (shanLingFileModel.isFile()) {
             shanLingFileItemViewHolder.fileSize.setText(TextUtil.convertByteToMegabyte(shanLingFileModel.getSize()) + "MB");
         }
-        int fileIconResourceId = (shanLingFileModel.getSize() != null) ? R.drawable.ic_music : R.drawable.ic_folder;
+        int fileIconResourceId = (shanLingFileModel.isFile()) ? R.drawable.ic_music : R.drawable.ic_folder;
         Glide.with(context)
                 .load(fileIconResourceId)
                 .into(shanLingFileItemViewHolder.fileIcon);
         shanLingFileItemViewHolder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(v, i));
+
     }
 
     @Override

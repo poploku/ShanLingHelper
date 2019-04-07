@@ -45,6 +45,7 @@ import cc.lgiki.shanlinghelper.util.SharedPreferencesUtil;
 import cc.lgiki.shanlinghelper.util.ToastUtil;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
+    private final String DEFAULT_PATH = "%2Fmnt%2Fmmc%2F";
     private static final String TAG = "MainActivity";
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
@@ -96,16 +97,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListRecyclerView.setLayoutManager(layoutManager);
         shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
         shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
-        shanLingFileListAdapter.setOnItemClickListener(new ShanLingFileListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
-                try{
-                    pathStack.push(URLEncoder.encode(shanLingFileModel.getPath(), "UTF-8"));
-                    refreshShanLingFileList();
-                }catch (Exception e) {
-                    e.printStackTrace();
-                }
+        shanLingFileListAdapter.setOnItemClickListener((view, position) -> {
+            ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
+            try{
+                pathStack.push(URLEncoder.encode(shanLingFileModel.getPath(), "UTF-8"));
+                refreshShanLingFileList();
+            }catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
@@ -136,7 +134,17 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     }
 
     private void initData() {
-        pathStack.push("%2Fmnt%2Fmmc%2F");
+        pathStack.push(DEFAULT_PATH);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(pathStack.size() > 1) {
+            pathStack.pop();
+            refreshShanLingFileList();
+        }else {
+            super.onBackPressed();
+        }
     }
 
     private void refreshShanLingFileList() {
@@ -144,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         HttpUtil.sendOkHttpRequest(url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error);
+                runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error));
                 Log.d(TAG, "onFailure: " + e.getMessage());
             }
 

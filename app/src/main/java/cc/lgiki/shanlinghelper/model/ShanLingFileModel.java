@@ -51,4 +51,8 @@ public class ShanLingFileModel {
     public void setSize(Long size) {
         this.size = size;
     }
+
+    public boolean isFile() {
+        return this.size != null;
+    }
 }
