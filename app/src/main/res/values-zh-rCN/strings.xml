@@ -8,6 +8,7 @@
     <string name="message_no_permission">无法获取文件读写权限，请重启程序并允许权限申请或到应用程序设置中赋予本程序文件读写权限</string>
     <string name="message_no_enter_shanling_url">请输入山灵WiFi传歌URL，否则无法正常使用本程序</string>
     <string name="message_shanling_url_error">山灵WiFi传歌URL错误，请检查后重新输入</string>
+    <string name="message_shanling_file_json_parse_error">数据解析错误，无法打开该文件夹，请稍后重试</string>
     <string name="message_connect_shanling_wifi_transfer_error">无法连接到山灵WiFi传歌，请检查网络状态或重新输入WiFi传歌URL</string>
     <string name="message_no_select_file">没有选择任何文件</string>
     <string name="btn_ok">确认</string>

@@ -8,6 +8,7 @@
     <string name="message_no_enter_shanling_url">Please input the URL of ShanLing WiFi transfer</string>
     <string name="message_shanling_url_error">The URL of ShanLing WiFi transfer is incorrect, please check and retry</string>
     <string name="message_connect_shanling_wifi_transfer_error">Can not connect to ShanLing WiFi transfer, please check the network connection or check the URL</string>
+    <string name="message_shanling_file_json_parse_error">Data parse error, can not open this folder, please try later</string>
     <string name="message_no_select_file">No select any files</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>

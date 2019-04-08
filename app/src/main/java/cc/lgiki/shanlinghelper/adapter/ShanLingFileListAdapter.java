@@ -37,6 +37,7 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
         ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
         shanLingFileItemViewHolder.fileName.setText(shanLingFileModel.getName());
         shanLingFileItemViewHolder.fileCreateTime.setText(TextUtil.timestampToString(shanLingFileModel.getCtime()));
+        shanLingFileItemViewHolder.fileSize.setText("");
         if (shanLingFileModel.isFile()) {
             shanLingFileItemViewHolder.fileSize.setText(TextUtil.convertByteToMegabyte(shanLingFileModel.getSize()) + "MB");
         }

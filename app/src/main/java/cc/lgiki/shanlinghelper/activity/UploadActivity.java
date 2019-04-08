@@ -20,6 +20,7 @@ import cc.lgiki.shanlinghelper.adapter.UploadFileListAdapter;
 public class UploadActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private List<String> uploadFilePathList;
+    private String uploadPath;
     private FloatingActionButton submitUploadButton;
     private RecyclerView uploadFileListRecyclerView;
     private UploadFileListAdapter uploadFileListAdapter;
@@ -30,6 +31,7 @@ public class UploadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_upload);
         Intent intent = getIntent();
         uploadFilePathList = intent.getStringArrayListExtra("uploadFilePathList");
+        uploadPath = intent.getStringExtra("uploadPath");
         initView();
     }
 
@@ -52,8 +54,9 @@ public class UploadActivity extends AppCompatActivity {
         }));
     }
 
-    public static void actionStart(Context context, List<String> uploadFilePathList) {
+    public static void actionStart(Context context, String uploadPath, List<String> uploadFilePathList) {
         Intent intent = new Intent(context, UploadActivity.class);
+        intent.putExtra("uploadPath", uploadPath);
         intent.putStringArrayListExtra("uploadFilePathList", new ArrayList<>(uploadFilePathList));
         context.startActivity(intent);
     }

@@ -26,6 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 
@@ -52,6 +53,7 @@ import cc.lgiki.shanlinghelper.util.SharedPreferencesUtil;
 import cc.lgiki.shanlinghelper.util.ToastUtil;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
+    //TODO: Add SwipeRefreshLayout
     private final String DEFAULT_PATH = "%2Fmnt%2Fmmc%2F";
     private static final String TAG = "MainActivity";
     private Toolbar toolbar;
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         if (shanLingWiFiTransferBaseUrl == null || "".equals(shanLingWiFiTransferBaseUrl)) {
             showDialog();
         } else {
-            refreshShanLingFileList();
+            refreshShanLingFileList(pathStack.peek());
         }
     }
 
@@ -119,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 if (!pathStack.peek().equals(newPath)) {
                     pathStack.push(newPath);
                 }
-                refreshShanLingFileList();
+                refreshShanLingFileList(pathStack.peek());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -142,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     } else {
                         this.shanLingWiFiTransferBaseUrl = "http://" + shanLingWiFiTransferIp + ":8888/";
                         sharedPreferencesUtil.putString("url", shanLingWiFiTransferBaseUrl);
-                        refreshShanLingFileList();
+                        refreshShanLingFileList(pathStack.peek());
                     }
                 }))
                 .setNegativeButton(R.string.btn_cancel, ((dialog, which) -> {
@@ -160,14 +162,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     public void onBackPressed() {
         if (pathStack.size() > 1) {
             pathStack.pop();
-            refreshShanLingFileList();
+            refreshShanLingFileList(pathStack.peek());
         } else {
             super.onBackPressed();
         }
     }
 
-    private void refreshShanLingFileList() {
-        String url = shanLingWiFiTransferBaseUrl + "list?path=" + pathStack.peek();
+    private void refreshShanLingFileList(String path) {
+        String url = shanLingWiFiTransferBaseUrl + "list?path=" + path;
         HttpUtil.sendOkHttpRequest(url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -193,6 +195,16 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     }
                     Collections.sort(shanLingFileModelList);
                     runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
+                } catch (JsonSyntaxException e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));
+                    pathStack.pop();
+                    refreshShanLingFileList(pathStack.peek());
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                    runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));
+                    pathStack.pop();
+                    refreshShanLingFileList(pathStack.peek());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -206,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             case FilePickerManager.REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
                     List<String> selectedFiles = FilePickerManager.INSTANCE.obtainData();
-                    UploadActivity.actionStart(this, selectedFiles);
+                    UploadActivity.actionStart(this, pathStack.peek(), selectedFiles);
                 } else {
                     ToastUtil.showShortToast(this, R.string.message_no_select_file);
                 }
