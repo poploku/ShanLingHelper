@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -53,13 +54,13 @@ import cc.lgiki.shanlinghelper.util.SharedPreferencesUtil;
 import cc.lgiki.shanlinghelper.util.ToastUtil;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
-    //TODO: Add SwipeRefreshLayout
     private final String DEFAULT_PATH = "%2Fmnt%2Fmmc%2F";
     private static final String TAG = "MainActivity";
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private RecyclerView shanLingFileListRecyclerView;
+    private SwipeRefreshLayout shanLingFileListSwipeRefreshLayout;
     private ShanLingFileListAdapter shanLingFileListAdapter;
     private List<ShanLingFileModel> shanLingFileModelList = new ArrayList<>();
     private String shanLingWiFiTransferBaseUrl;
@@ -98,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         shanLingFileListRecyclerView = (RecyclerView) findViewById(R.id.rv_shanling_file_list);
         uploadButton = (FloatingActionButton) findViewById(R.id.fab_upload_here);
+        shanLingFileListSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_shanling_file_list);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     return true;
                 }
         );
+        shanLingFileListSwipeRefreshLayout.setOnRefreshListener(() -> refreshShanLingFileList(pathStack.peek()));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         shanLingFileListRecyclerView.setLayoutManager(layoutManager);
         shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
@@ -177,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error);
                     showDialog();
                 });
+                shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                 Log.d(TAG, "onFailure: " + e.getMessage());
             }
 
@@ -195,18 +199,22 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     }
                     Collections.sort(shanLingFileModelList);
                     runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
+                    shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                 } catch (JsonSyntaxException e) {
                     e.printStackTrace();
                     runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));
                     pathStack.pop();
                     refreshShanLingFileList(pathStack.peek());
+                    shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                 } catch (IllegalStateException e) {
                     e.printStackTrace();
                     runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));
                     pathStack.pop();
                     refreshShanLingFileList(pathStack.peek());
+                    shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                 }
             }
         });
