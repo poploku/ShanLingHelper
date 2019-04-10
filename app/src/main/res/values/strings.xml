@@ -11,6 +11,7 @@
     <string name="message_shanling_file_json_parse_error">Data parse error, can not open this folder, please try later</string>
     <string name="message_no_select_file">No select any files</string>
     <string name="message_file_will_upload_to">These files will be uploaded to %1$s</string>
+    <string name="message_can_not_get_shanling_wifi_transfer_url">Can not get ShanLing WiFi transfer URL</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="menu_exit">Exit</string>

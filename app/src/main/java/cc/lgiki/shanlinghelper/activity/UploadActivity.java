@@ -15,14 +15,17 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import cc.lgiki.shanlinghelper.MyApplication;
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.adapter.UploadFileListAdapter;
 import cc.lgiki.shanlinghelper.util.TextUtil;
+import cc.lgiki.shanlinghelper.util.ToastUtil;
 
 public class UploadActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private List<String> uploadFilePathList;
     private String uploadPath;
+    private String shanLingWiFiTransferBaseUrl;
     private FloatingActionButton submitUploadButton;
     private RecyclerView uploadFileListRecyclerView;
     private UploadFileListAdapter uploadFileListAdapter;
@@ -35,6 +38,7 @@ public class UploadActivity extends AppCompatActivity {
         uploadFilePathList = intent.getStringArrayListExtra("uploadFilePathList");
         uploadPath = intent.getStringExtra("uploadPath");
         initView();
+        initData();
     }
 
     private void initView() {
@@ -56,6 +60,14 @@ public class UploadActivity extends AppCompatActivity {
         submitUploadButton.setOnClickListener((v -> {
             //TODO: Complete file upload using OKHttp
         }));
+    }
+
+    private void initData() {
+        shanLingWiFiTransferBaseUrl = MyApplication.getShanLingWiFiTransferBaseUrl();
+        if (shanLingWiFiTransferBaseUrl == null) {
+            ToastUtil.showShortToast(this, R.string.message_can_not_get_shanling_wifi_transfer_url);
+            finish();
+        }
     }
 
     public static void actionStart(Context context, String uploadPath, List<String> uploadFilePathList) {

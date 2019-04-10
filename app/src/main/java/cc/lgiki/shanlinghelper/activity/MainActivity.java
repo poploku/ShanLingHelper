@@ -2,6 +2,7 @@ package cc.lgiki.shanlinghelper.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import cc.lgiki.shanlinghelper.MyApplication;
 import cc.lgiki.shanlinghelper.adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
@@ -90,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         if (shanLingWiFiTransferBaseUrl == null || "".equals(shanLingWiFiTransferBaseUrl)) {
             showDialog();
         } else {
+            MyApplication.setShanLingWiFiTransferBaseUrl(shanLingWiFiTransferBaseUrl);
             refreshShanLingFileList(pathStack.peek());
         }
     }
@@ -144,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     } else {
                         this.shanLingWiFiTransferBaseUrl = "http://" + shanLingWiFiTransferIp + ":8888/";
                         sharedPreferencesUtil.putString("url", shanLingWiFiTransferBaseUrl);
+                        MyApplication.setShanLingWiFiTransferBaseUrl(shanLingWiFiTransferBaseUrl);
                         refreshShanLingFileList(pathStack.peek());
                     }
                 }))
