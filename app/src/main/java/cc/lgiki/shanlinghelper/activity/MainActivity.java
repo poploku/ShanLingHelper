@@ -42,6 +42,7 @@ import java.util.Stack;
 import cc.lgiki.shanlinghelper.adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
+import cc.lgiki.shanlinghelper.util.TextUtil;
 import me.rosuh.filepicker.config.FilePickerManager;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -119,15 +120,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
         shanLingFileListAdapter.setOnItemClickListener((view, position) -> {
             ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
-            try {
-                String newPath = URLEncoder.encode(shanLingFileModel.getPath(), "UTF-8");
-                if (!pathStack.peek().equals(newPath)) {
-                    pathStack.push(newPath);
-                }
-                refreshShanLingFileList(pathStack.peek());
-            } catch (Exception e) {
-                e.printStackTrace();
+            String newPath = TextUtil.urlEncode(shanLingFileModel.getPath());
+            if(newPath != null && !pathStack.peek().equals(newPath)) {
+                pathStack.push(newPath);
             }
+            refreshShanLingFileList(pathStack.peek());
         });
         uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
     }

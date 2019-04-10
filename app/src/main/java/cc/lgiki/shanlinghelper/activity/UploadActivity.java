@@ -10,12 +10,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.adapter.UploadFileListAdapter;
+import cc.lgiki.shanlinghelper.util.TextUtil;
 
 public class UploadActivity extends AppCompatActivity {
     private Toolbar toolbar;
@@ -36,6 +38,7 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        TextView uploadPathTextView = (TextView) findViewById(R.id.tv_upload_to_path);
         toolbar = (Toolbar) findViewById(R.id.tb_upload);
         uploadFileListRecyclerView = (RecyclerView) findViewById(R.id.rv_upload_file_list);
         submitUploadButton = (FloatingActionButton) findViewById(R.id.fab_upload_submit);
@@ -49,6 +52,7 @@ public class UploadActivity extends AppCompatActivity {
         uploadFileListRecyclerView.setLayoutManager(layoutManager);
         uploadFileListAdapter = new UploadFileListAdapter(this, uploadFilePathList);
         uploadFileListRecyclerView.setAdapter(uploadFileListAdapter);
+        uploadPathTextView.setText(String.format(getResources().getString(R.string.message_file_will_upload_to), TextUtil.urlDncode(uploadPath)));
         submitUploadButton.setOnClickListener((v -> {
             //TODO: Complete file upload using OKHttp
         }));

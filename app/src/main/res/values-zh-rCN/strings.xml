@@ -11,6 +11,7 @@
     <string name="message_shanling_file_json_parse_error">数据解析错误，无法打开该文件夹，请稍后重试</string>
     <string name="message_connect_shanling_wifi_transfer_error">无法连接到山灵WiFi传歌，请检查网络状态或重新输入WiFi传歌URL</string>
     <string name="message_no_select_file">没有选择任何文件</string>
+    <string name="message_file_will_upload_to">以下文件将被上传到 %1$s</string>
     <string name="btn_ok">确认</string>
     <string name="btn_cancel">取消</string>
     <string name="menu_exit">退出</string>
