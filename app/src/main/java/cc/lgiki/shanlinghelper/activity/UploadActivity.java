@@ -1,16 +1,30 @@
 package cc.lgiki.shanlinghelper.activity;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import net.gotev.uploadservice.MultipartUploadRequest;
+import net.gotev.uploadservice.ServerResponse;
+import net.gotev.uploadservice.UploadInfo;
+import net.gotev.uploadservice.UploadNotificationConfig;
+import net.gotev.uploadservice.UploadStatusDelegate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +36,8 @@ import cc.lgiki.shanlinghelper.util.TextUtil;
 import cc.lgiki.shanlinghelper.util.ToastUtil;
 
 public class UploadActivity extends AppCompatActivity {
+    private static final String TAG = "UploadActivity";
+    public static final int REQUEST_CODE = 10181;
     private Toolbar toolbar;
     private List<String> uploadFilePathList;
     private String uploadPath;
@@ -37,6 +53,7 @@ public class UploadActivity extends AppCompatActivity {
         Intent intent = getIntent();
         uploadFilePathList = intent.getStringArrayListExtra("uploadFilePathList");
         uploadPath = intent.getStringExtra("uploadPath");
+        uploadPath = TextUtil.urlDncode(uploadPath);
         initView();
         initData();
     }
@@ -56,9 +73,57 @@ public class UploadActivity extends AppCompatActivity {
         uploadFileListRecyclerView.setLayoutManager(layoutManager);
         uploadFileListAdapter = new UploadFileListAdapter(this, uploadFilePathList);
         uploadFileListRecyclerView.setAdapter(uploadFileListAdapter);
-        uploadPathTextView.setText(String.format(getResources().getString(R.string.message_file_will_upload_to), TextUtil.urlDncode(uploadPath)));
+        uploadPathTextView.setText(String.format(getResources().getString(R.string.message_file_will_upload_to), uploadPath));
         submitUploadButton.setOnClickListener((v -> {
-            //TODO: Complete file upload using OKHttp
+            if (uploadPath != null && !"".equals(uploadPath) && uploadFilePathList.size() > 0) {
+                ProgressDialog uploadProgressDialog = new ProgressDialog(UploadActivity.this);
+                uploadProgressDialog.setTitle(R.string.title_uploading);
+                uploadProgressDialog.setCancelable(false);
+                uploadProgressDialog.setMessage(getResources().getString(R.string.message_uploading));
+                uploadProgressDialog.show();
+                MultipartUploadRequest multipartUploadRequest;
+                String serverUrl = shanLingWiFiTransferBaseUrl + "upload";
+                try {
+                    multipartUploadRequest = new MultipartUploadRequest(this, serverUrl);
+                    for (String filePath : uploadFilePathList) {
+                        multipartUploadRequest.addFileToUpload(filePath, "files[]");
+                    }
+                    multipartUploadRequest.addParameter("path", uploadPath);
+                    multipartUploadRequest.setMaxRetries(2);
+                    multipartUploadRequest.setUtf8Charset();
+                    multipartUploadRequest.setNotificationConfig(new UploadNotificationConfig());
+                    multipartUploadRequest.setDelegate(new UploadStatusDelegate() {
+                        @Override
+                        public void onProgress(Context context, UploadInfo uploadInfo) {
+                            uploadProgressDialog.setProgress(uploadInfo.getProgressPercent());
+                            uploadProgressDialog.setMessage(String.format(getResources().getString(R.string.message_uploading_progress), uploadInfo.getProgressPercent(), uploadInfo.getElapsedTimeString(), uploadInfo.getUploadRateString()));
+                        }
+
+                        @Override
+                        public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                            uploadProgressDialog.cancel();
+                            Log.d(TAG, "onError: " + serverResponse.getBodyAsString());
+                        }
+
+                        @Override
+                        public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                            uploadProgressDialog.cancel();
+                            ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadInfo.getSuccessfullyUploadedFiles().size()));
+                            setResult(Activity.RESULT_OK);
+                            finish();
+                        }
+
+                        @Override
+                        public void onCancelled(Context context, UploadInfo uploadInfo) {
+                            uploadProgressDialog.cancel();
+
+                        }
+                    });
+                    multipartUploadRequest.startUpload();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }));
     }
 
@@ -74,7 +139,7 @@ public class UploadActivity extends AppCompatActivity {
         Intent intent = new Intent(context, UploadActivity.class);
         intent.putExtra("uploadPath", uploadPath);
         intent.putStringArrayListExtra("uploadFilePathList", new ArrayList<>(uploadFilePathList));
-        context.startActivity(intent);
+        ((AppCompatActivity)context).startActivityForResult(intent, REQUEST_CODE);
     }
 
     @Override

@@ -3,20 +3,26 @@ package cc.lgiki.shanlinghelper.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -121,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListAdapter.setOnItemClickListener((view, position) -> {
             ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
             String newPath = TextUtil.urlEncode(shanLingFileModel.getPath());
-            if(newPath != null && !pathStack.peek().equals(newPath)) {
+            if (newPath != null && !pathStack.peek().equals(newPath)) {
                 pathStack.push(newPath);
             }
             refreshShanLingFileList(pathStack.peek());
@@ -229,6 +235,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     ToastUtil.showShortToast(this, R.string.message_no_select_file);
                 }
                 break;
+            case UploadActivity.REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    refreshShanLingFileList(pathStack.peek());
+                }
             default:
                 break;
         }

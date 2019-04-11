@@ -1,20 +1,25 @@
 <resources>
-    <string name="app_name">ShanLingHelper</string>
+    <string name="app_name">ShanlingHelper</string>
     <string name="nav_upload">Upload</string>
     <string name="nav_about">About</string>
-    <string name="hint_enter_shanling_url">Please input the URL of ShanLing WiFi transfer</string>
+    <string name="hint_enter_shanling_url">Please input the URL of Shanling WiFi transfer</string>
     <string name="permission_rationale">Program need the permission of read and write to external storage for upload file to player</string>
     <string name="message_no_permission">Can not get the permission of read and write to external storage, please restart this program and allow it get the permission</string>
-    <string name="message_no_enter_shanling_url">Please input the URL of ShanLing WiFi transfer</string>
-    <string name="message_shanling_url_error">The URL of ShanLing WiFi transfer is incorrect, please check and retry</string>
-    <string name="message_connect_shanling_wifi_transfer_error">Can not connect to ShanLing WiFi transfer, please check the network connection or check the URL</string>
+    <string name="message_no_enter_shanling_url">Please input the URL of Shanling WiFi transfer</string>
+    <string name="message_shanling_url_error">The URL of Shanling WiFi transfer is incorrect, please check and retry</string>
+    <string name="message_connect_shanling_wifi_transfer_error">Can not connect to Shanling WiFi transfer, please check the network connection or check the URL</string>
     <string name="message_shanling_file_json_parse_error">Data parse error, can not open this folder, please try later</string>
     <string name="message_no_select_file">No select any files</string>
     <string name="message_file_will_upload_to">These files will be uploaded to %1$s</string>
-    <string name="message_can_not_get_shanling_wifi_transfer_url">Can not get ShanLing WiFi transfer URL</string>
+    <string name="message_can_not_get_shanling_wifi_transfer_url">Can not get Shanling WiFi transfer URL</string>
+    <string name="message_uploading">Uploading</string>
+    <string name="message_uploading_progress">%1$d &#37; Completed\nElapsed time %2$s\nUpload Rate %3$s</string>
+    <string name="message_upload_success">Successful uploaded %1$d file(s)</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="menu_exit">Exit</string>
     <string name="menu_new_folder">New Folder</string>
     <string name="title_upload_activity">Confirm upload the files below?</string>
+    <string name="title_uploading">Upload files to Shanling player</string>
+
 </resources>
