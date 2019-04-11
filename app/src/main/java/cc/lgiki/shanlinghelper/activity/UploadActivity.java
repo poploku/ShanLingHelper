@@ -104,9 +104,9 @@ public class UploadActivity extends AppCompatActivity {
                 uploadProgressDialog.setMessage(getResources().getString(R.string.message_uploading));
                 uploadProgressDialog.show();
                 List<String> uploadFailedFileList = new ArrayList<>();
+                List<String> uploadSuccessFileList = new ArrayList<>();
                 for (String filePath : uploadFilePathList) {
                     uploadFileToShanlingPlayer(filePath, new UploadStatusDelegate() {
-                        private int currentFileIndex = uploadFilePathList.indexOf(filePath);
 
                         @Override
                         public void onProgress(Context context, UploadInfo uploadInfo) {
@@ -116,7 +116,7 @@ public class UploadActivity extends AppCompatActivity {
                         @Override
                         public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
                             uploadFailedFileList.add(uploadPath);
-                            if (currentFileIndex == uploadFilePathList.size() - 1) {
+                            if (uploadSuccessFileList.size() + uploadFailedFileList.size() == uploadFilePathList.size()) {
                                 uploadProgressDialog.cancel();
                                 ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadInfo.getSuccessfullyUploadedFiles().size()));
                                 setResult(Activity.RESULT_OK);
@@ -126,7 +126,8 @@ public class UploadActivity extends AppCompatActivity {
 
                         @Override
                         public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                            if (currentFileIndex == uploadFilePathList.size() - 1) {
+                            uploadSuccessFileList.add(uploadPath);
+                            if (uploadSuccessFileList.size() + uploadFailedFileList.size() == uploadFilePathList.size()) {
                                 uploadProgressDialog.cancel();
                                 ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadFilePathList.size() - uploadFailedFileList.size()));
                                 setResult(Activity.RESULT_OK);
