@@ -37,7 +37,7 @@ import cc.lgiki.shanlinghelper.util.ToastUtil;
 
 public class UploadActivity extends AppCompatActivity {
     private static final String TAG = "UploadActivity";
-    public static final int REQUEST_CODE = 10181;
+    public static final int REQUEST_CODE = 10180;
     private Toolbar toolbar;
     private List<String> uploadFilePathList;
     private String uploadPath;
@@ -45,6 +45,8 @@ public class UploadActivity extends AppCompatActivity {
     private FloatingActionButton submitUploadButton;
     private RecyclerView uploadFileListRecyclerView;
     private UploadFileListAdapter uploadFileListAdapter;
+    private ProgressDialog uploadProgressDialog;
+    private MultipartUploadRequest multipartUploadRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,24 @@ public class UploadActivity extends AppCompatActivity {
         uploadPath = TextUtil.urlDncode(uploadPath);
         initView();
         initData();
+    }
+
+    private void uploadFileToShanlingPlayer(String filePath, UploadStatusDelegate uploadStatusDelegate) {
+        String serverUrl = shanLingWiFiTransferBaseUrl + "upload";
+        UploadNotificationConfig notificationConfig = new UploadNotificationConfig();
+        notificationConfig.getCompleted().autoClear = true;
+        try {
+            MultipartUploadRequest multipartUploadRequest = new MultipartUploadRequest(this, serverUrl);
+            multipartUploadRequest.addFileToUpload(filePath, "files[]")
+                    .addParameter("path", uploadPath)
+                    .setMaxRetries(2)
+                    .setNotificationConfig(notificationConfig)
+                    .setUtf8Charset()
+                    .setDelegate(uploadStatusDelegate)
+                    .startUpload();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void initView() {
@@ -76,53 +96,51 @@ public class UploadActivity extends AppCompatActivity {
         uploadPathTextView.setText(String.format(getResources().getString(R.string.message_file_will_upload_to), uploadPath));
         submitUploadButton.setOnClickListener((v -> {
             if (uploadPath != null && !"".equals(uploadPath) && uploadFilePathList.size() > 0) {
-                ProgressDialog uploadProgressDialog = new ProgressDialog(UploadActivity.this);
+                if (uploadProgressDialog == null) {
+                    uploadProgressDialog = new ProgressDialog(UploadActivity.this);
+                }
                 uploadProgressDialog.setTitle(R.string.title_uploading);
                 uploadProgressDialog.setCancelable(false);
                 uploadProgressDialog.setMessage(getResources().getString(R.string.message_uploading));
                 uploadProgressDialog.show();
-                MultipartUploadRequest multipartUploadRequest;
-                String serverUrl = shanLingWiFiTransferBaseUrl + "upload";
-                try {
-                    multipartUploadRequest = new MultipartUploadRequest(this, serverUrl);
-                    for (String filePath : uploadFilePathList) {
-                        multipartUploadRequest.addFileToUpload(filePath, "files[]");
-                    }
-                    multipartUploadRequest.addParameter("path", uploadPath);
-                    multipartUploadRequest.setMaxRetries(2);
-                    multipartUploadRequest.setUtf8Charset();
-                    multipartUploadRequest.setNotificationConfig(new UploadNotificationConfig());
-                    multipartUploadRequest.setDelegate(new UploadStatusDelegate() {
+                List<String> uploadFailedFileList = new ArrayList<>();
+                for (String filePath : uploadFilePathList) {
+                    uploadFileToShanlingPlayer(filePath, new UploadStatusDelegate() {
+                        private int currentFileIndex = uploadFilePathList.indexOf(filePath);
+
                         @Override
                         public void onProgress(Context context, UploadInfo uploadInfo) {
-                            uploadProgressDialog.setProgress(uploadInfo.getProgressPercent());
-                            uploadProgressDialog.setMessage(String.format(getResources().getString(R.string.message_uploading_progress), uploadInfo.getProgressPercent(), uploadInfo.getElapsedTimeString(), uploadInfo.getUploadRateString()));
+//                            uploadProgressDialog.setMessage(String.format(getResources().getString(R.string.message_uploading_progress), uploadInfo.getUploadRateString()));
                         }
 
                         @Override
                         public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
-                            uploadProgressDialog.cancel();
-                            Log.d(TAG, "onError: " + serverResponse.getBodyAsString());
+                            uploadFailedFileList.add(uploadPath);
+                            if (currentFileIndex == uploadFilePathList.size() - 1) {
+                                uploadProgressDialog.cancel();
+                                ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadInfo.getSuccessfullyUploadedFiles().size()));
+                                setResult(Activity.RESULT_OK);
+                                finish();
+                            }
                         }
 
                         @Override
                         public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                            uploadProgressDialog.cancel();
-                            ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadInfo.getSuccessfullyUploadedFiles().size()));
-                            setResult(Activity.RESULT_OK);
-                            finish();
+                            if (currentFileIndex == uploadFilePathList.size() - 1) {
+                                uploadProgressDialog.cancel();
+                                ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadFilePathList.size() - uploadFailedFileList.size()));
+                                setResult(Activity.RESULT_OK);
+                                finish();
+                            }
                         }
 
                         @Override
                         public void onCancelled(Context context, UploadInfo uploadInfo) {
                             uploadProgressDialog.cancel();
-
                         }
                     });
-                    multipartUploadRequest.startUpload();
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+
             }
         }));
     }
@@ -139,7 +157,7 @@ public class UploadActivity extends AppCompatActivity {
         Intent intent = new Intent(context, UploadActivity.class);
         intent.putExtra("uploadPath", uploadPath);
         intent.putStringArrayListExtra("uploadFilePathList", new ArrayList<>(uploadFilePathList));
-        ((AppCompatActivity)context).startActivityForResult(intent, REQUEST_CODE);
+        ((AppCompatActivity) context).startActivityForResult(intent, REQUEST_CODE);
     }
 
     @Override

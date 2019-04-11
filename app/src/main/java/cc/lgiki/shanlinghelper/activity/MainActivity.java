@@ -176,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     }
 
     private void refreshShanLingFileList(String path) {
+        shanLingFileListSwipeRefreshLayout.setRefreshing(true);
         String url = shanLingWiFiTransferBaseUrl + "list?path=" + path;
         HttpUtil.sendOkHttpRequest(url, new Callback() {
             @Override
