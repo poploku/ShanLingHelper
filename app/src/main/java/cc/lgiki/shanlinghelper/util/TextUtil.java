@@ -31,7 +31,7 @@ public class TextUtil {
     }
 
 
-    public static String urlDncode(String str) {
+    public static String urlDecode(String str) {
         String result = null;
         try {
             result = URLDecoder.decode(str, "UTF-8");

@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     private RecyclerView shanLingFileListRecyclerView;
     private SwipeRefreshLayout shanLingFileListSwipeRefreshLayout;
     private ShanLingFileListAdapter shanLingFileListAdapter;
+    private TextView currentPathTextView;
     private List<ShanLingFileModel> shanLingFileModelList = new ArrayList<>();
     private String shanLingWiFiTransferBaseUrl;
     private SharedPreferencesUtil sharedPreferencesUtil;
@@ -107,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListRecyclerView = (RecyclerView) findViewById(R.id.rv_shanling_file_list);
         uploadButton = (FloatingActionButton) findViewById(R.id.fab_upload_here);
         shanLingFileListSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_shanling_file_list);
+        currentPathTextView = (TextView) findViewById(R.id.tv_current_path);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -205,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     Collections.sort(shanLingFileModelList);
                     runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
                     shanLingFileListSwipeRefreshLayout.setRefreshing(false);
+                    currentPathTextView.setText(TextUtil.urlDecode(pathStack.peek()));
                 } catch (JsonSyntaxException e) {
                     e.printStackTrace();
                     runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));

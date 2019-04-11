@@ -55,7 +55,7 @@ public class UploadActivity extends AppCompatActivity {
         Intent intent = getIntent();
         uploadFilePathList = intent.getStringArrayListExtra("uploadFilePathList");
         uploadPath = intent.getStringExtra("uploadPath");
-        uploadPath = TextUtil.urlDncode(uploadPath);
+        uploadPath = TextUtil.urlDecode(uploadPath);
         initView();
         initData();
     }
