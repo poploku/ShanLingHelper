@@ -60,24 +60,6 @@ public class UploadActivity extends AppCompatActivity {
         initData();
     }
 
-    private void uploadFileToShanlingPlayer(String filePath, UploadStatusDelegate uploadStatusDelegate) {
-        String serverUrl = shanLingWiFiTransferBaseUrl + "upload";
-        UploadNotificationConfig notificationConfig = new UploadNotificationConfig();
-        notificationConfig.getCompleted().autoClear = true;
-        try {
-            MultipartUploadRequest multipartUploadRequest = new MultipartUploadRequest(this, serverUrl);
-            multipartUploadRequest.addFileToUpload(filePath, "files[]")
-                    .addParameter("path", uploadPath)
-                    .setMaxRetries(2)
-                    .setNotificationConfig(notificationConfig)
-                    .setUtf8Charset()
-                    .setDelegate(uploadStatusDelegate)
-                    .startUpload();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private void initView() {
         TextView uploadPathTextView = (TextView) findViewById(R.id.tv_upload_to_path);
         toolbar = (Toolbar) findViewById(R.id.tb_upload);
@@ -103,45 +85,60 @@ public class UploadActivity extends AppCompatActivity {
                 uploadProgressDialog.setCancelable(false);
                 uploadProgressDialog.setMessage(getResources().getString(R.string.message_uploading));
                 uploadProgressDialog.show();
-                List<String> uploadFailedFileList = new ArrayList<>();
-                List<String> uploadSuccessFileList = new ArrayList<>();
+                String serverUrl = shanLingWiFiTransferBaseUrl + "upload";
+                UploadNotificationConfig notificationConfig = new UploadNotificationConfig();
+                notificationConfig.getCompleted().autoClear = true;
+                List<MultipartUploadRequest> multipartUploadRequestList = new ArrayList<>();
                 for (String filePath : uploadFilePathList) {
-                    uploadFileToShanlingPlayer(filePath, new UploadStatusDelegate() {
+                    try {
+                        MultipartUploadRequest multipartUploadRequest = new MultipartUploadRequest(UploadActivity.this, serverUrl);
+                        multipartUploadRequest.setDelegate(new UploadStatusDelegate() {
+                            private int currentIndex = uploadFilePathList.indexOf(filePath);
 
-                        @Override
-                        public void onProgress(Context context, UploadInfo uploadInfo) {
-//                            uploadProgressDialog.setMessage(String.format(getResources().getString(R.string.message_uploading_progress), uploadInfo.getUploadRateString()));
-                        }
-
-                        @Override
-                        public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
-                            uploadFailedFileList.add(uploadPath);
-                            if (uploadSuccessFileList.size() + uploadFailedFileList.size() == uploadFilePathList.size()) {
-                                uploadProgressDialog.cancel();
-                                ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadInfo.getSuccessfullyUploadedFiles().size()));
-                                setResult(Activity.RESULT_OK);
-                                finish();
+                            @Override
+                            public void onProgress(Context context, UploadInfo uploadInfo) {
+                                uploadProgressDialog.setMessage(String.format(getResources().getString(R.string.message_uploading_progress), currentIndex + 1, multipartUploadRequestList.size(), uploadInfo.getUploadRateString()));
                             }
-                        }
 
-                        @Override
-                        public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
-                            uploadSuccessFileList.add(uploadPath);
-                            if (uploadSuccessFileList.size() + uploadFailedFileList.size() == uploadFilePathList.size()) {
+                            @Override
+                            public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
                                 uploadProgressDialog.cancel();
-                                ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadFilePathList.size() - uploadFailedFileList.size()));
-                                setResult(Activity.RESULT_OK);
-                                finish();
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(Context context, UploadInfo uploadInfo) {
-                            uploadProgressDialog.cancel();
-                        }
-                    });
+                            @Override
+                            public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                                if (currentIndex + 1 == uploadFilePathList.size()) {
+                                    uploadProgressDialog.cancel();
+                                    ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadFilePathList.size() - currentIndex - 1));
+                                    setResult(Activity.RESULT_OK);
+                                    finish();
+                                } else {
+                                    MultipartUploadRequest request = multipartUploadRequestList.get(currentIndex + 1);
+                                    if (request != null) {
+                                        request.startUpload();
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(Context context, UploadInfo uploadInfo) {
+
+                            }
+                        });
+                        multipartUploadRequest.addFileToUpload(filePath, "files[]")
+                                .addParameter("path", uploadPath)
+                                .setMaxRetries(2)
+                                .setNotificationConfig(notificationConfig)
+                                .setUtf8Charset();
+                        multipartUploadRequestList.add(multipartUploadRequest);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-
+                MultipartUploadRequest request = multipartUploadRequestList.get(0);
+                if (request != null) {
+                    request.startUpload();
+                }
             }
         }));
     }
