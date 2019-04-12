@@ -19,12 +19,12 @@ public class TextUtil {
     }
 
     public static String urlEncode(String str) {
-        String result = null;
+        String result = str;
         try {
             result = URLEncoder.encode(str, "UTF-8");
-        }catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
@@ -32,12 +32,12 @@ public class TextUtil {
 
 
     public static String urlDecode(String str) {
-        String result = null;
+        String result = str;
         try {
             result = URLDecoder.decode(str, "UTF-8");
-        }catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
