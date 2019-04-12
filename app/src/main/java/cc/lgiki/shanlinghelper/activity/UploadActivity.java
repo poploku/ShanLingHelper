@@ -26,6 +26,7 @@ import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,27 +90,33 @@ public class UploadActivity extends AppCompatActivity {
                 UploadNotificationConfig notificationConfig = new UploadNotificationConfig();
                 notificationConfig.getCompleted().autoClear = true;
                 List<MultipartUploadRequest> multipartUploadRequestList = new ArrayList<>();
+                List<String> uploadSuccessFileList = new ArrayList<>();
+                List<String> uploadFailFileList = new ArrayList<>();
                 for (String filePath : uploadFilePathList) {
                     try {
                         MultipartUploadRequest multipartUploadRequest = new MultipartUploadRequest(UploadActivity.this, serverUrl);
                         multipartUploadRequest.setDelegate(new UploadStatusDelegate() {
                             private int currentIndex = uploadFilePathList.indexOf(filePath);
+                            private int totalFiles = uploadFilePathList.size();
+                            private String currentUploadFileName = new File(filePath).getName();
 
                             @Override
                             public void onProgress(Context context, UploadInfo uploadInfo) {
-                                uploadProgressDialog.setMessage(String.format(getResources().getString(R.string.message_uploading_progress), currentIndex + 1, multipartUploadRequestList.size(), uploadInfo.getUploadRateString()));
+                                uploadProgressDialog.setMessage(String.format(getResources().getString(R.string.message_uploading_progress), currentUploadFileName, currentIndex + 1, totalFiles, uploadInfo.getUploadRateString()));
                             }
 
                             @Override
                             public void onError(Context context, UploadInfo uploadInfo, ServerResponse serverResponse, Exception exception) {
+                                uploadFailFileList.add(filePath);
                                 uploadProgressDialog.cancel();
                             }
 
                             @Override
                             public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
+                                uploadSuccessFileList.add(filePath);
                                 if (currentIndex + 1 == uploadFilePathList.size()) {
                                     uploadProgressDialog.cancel();
-                                    ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadFilePathList.size() - currentIndex - 1));
+                                    ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadSuccessFileList.size()));
                                     setResult(Activity.RESULT_OK);
                                     finish();
                                 } else {
@@ -122,7 +129,8 @@ public class UploadActivity extends AppCompatActivity {
 
                             @Override
                             public void onCancelled(Context context, UploadInfo uploadInfo) {
-
+                                uploadFailFileList.add(filePath);
+                                uploadProgressDialog.cancel();
                             }
                         });
                         multipartUploadRequest.addFileToUpload(filePath, "files[]")
@@ -138,6 +146,8 @@ public class UploadActivity extends AppCompatActivity {
                 MultipartUploadRequest request = multipartUploadRequestList.get(0);
                 if (request != null) {
                     request.startUpload();
+                }else{
+                    //TODO: failed upload files
                 }
             }
         }));

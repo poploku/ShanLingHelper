@@ -14,7 +14,7 @@
     <string name="message_file_will_upload_to">以下文件将被上传到 %1$s</string>
     <string name="message_can_not_get_shanling_wifi_transfer_url">无法读取山灵传歌URL</string>
     <string name="message_uploading">正在上传</string>
-    <string name="message_uploading_progress">已上传：%1$d / %2$d\n实时传输速率：%3$s</string>
+    <string name="message_uploading_progress">正在上传：%1$s\n已上传：%2$d / %3$d\n实时传输速率：%4$s</string>
     <string name="message_upload_success">成功上传 %1$d 个文件</string>
     <string name="message_current_path">当前路径：%1$s</string>
     <string name="btn_ok">确认</string>
