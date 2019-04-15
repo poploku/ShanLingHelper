@@ -13,7 +13,7 @@
     <string name="message_file_will_upload_to">These files will be uploaded to %1$s</string>
     <string name="message_can_not_get_shanling_wifi_transfer_url">Can not get Shanling WiFi transfer URL</string>
     <string name="message_uploading">Uploading</string>
-    <string name="message_uploading_progress">Current uploading: %1$s\nUploaded: %2$d\nTotal:%3$d\nUpload Rate: %4$s</string>
+    <string name="message_uploading_progress">Current uploading: %1$s\nCurrent file progress: %2$d&#37;&#37;\nProgress: %3$d / %4$d\nUpload Rate: %5$s</string>
     <string name="message_upload_success">Successful uploaded %1$d file(s)</string>
     <string name="message_current_path">Current path：%1$s</string>
     <string name="btn_ok">OK</string>

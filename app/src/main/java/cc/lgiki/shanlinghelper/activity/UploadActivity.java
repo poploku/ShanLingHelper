@@ -102,7 +102,7 @@ public class UploadActivity extends AppCompatActivity {
 
                             @Override
                             public void onProgress(Context context, UploadInfo uploadInfo) {
-                                uploadProgressDialog.setMessage(String.format(getResources().getString(R.string.message_uploading_progress), currentUploadFileName, currentIndex + 1, totalFiles, uploadInfo.getUploadRateString()));
+                                uploadProgressDialog.setMessage(String.format(getResources().getString(R.string.message_uploading_progress), currentUploadFileName, uploadInfo.getProgressPercent(), currentIndex + 1, totalFiles, uploadInfo.getUploadRateString()));
                             }
 
                             @Override
@@ -146,7 +146,7 @@ public class UploadActivity extends AppCompatActivity {
                 MultipartUploadRequest request = multipartUploadRequestList.get(0);
                 if (request != null) {
                     request.startUpload();
-                }else{
+                } else {
                     //TODO: failed upload files
                 }
             }
