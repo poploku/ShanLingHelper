@@ -1,6 +1,7 @@
 package cc.lgiki.shanlinghelper.adapter;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,7 +42,7 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
         if (shanLingFileModel.isFile()) {
             shanLingFileItemViewHolder.fileSize.setText(TextUtil.convertByteToMegabyte(shanLingFileModel.getSize()) + "MB");
         }
-        int fileIconResourceId = (shanLingFileModel.isFile()) ? R.drawable.ic_music : R.drawable.ic_folder;
+        int fileIconResourceId = getFileIconResourceId(shanLingFileModel);
         Glide.with(context)
                 .load(fileIconResourceId)
                 .into(shanLingFileItemViewHolder.fileIcon);
@@ -52,6 +53,28 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
         }
 
     }
+
+    private int getFileIconResourceId(ShanLingFileModel shanLingFileModel) {
+        int resourceId = R.drawable.ic_folder;
+        switch (shanLingFileModel.getFileType()) {
+            case ShanLingFileModel.FILE_TYPE_MUSIC:
+                resourceId = R.drawable.ic_music;
+                break;
+            case ShanLingFileModel.FILE_TYPE_PICTURE:
+                resourceId = R.drawable.ic_picture;
+                break;
+            case ShanLingFileModel.FILE_TYPE_LYRIC:
+                resourceId = R.drawable.ic_lyric;
+                break;
+            case ShanLingFileModel.FILE_TYPE_UNKNOWN:
+                resourceId = R.drawable.ic_unknown;
+                break;
+            default:
+                break;
+        }
+        return resourceId;
+    }
+
 
     @Override
     public int getItemCount() {
