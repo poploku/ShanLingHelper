@@ -8,14 +8,31 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TextUtil {
-    public static String timestampToString(Long timestamp) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return simpleDateFormat.format(new Date(timestamp * 1000));
+    public static String timestampInSecondToString(Long timestamp) {
+        if (timestamp != null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            return simpleDateFormat.format(new Date(timestamp * 1000));
+        } else {
+            return null;
+        }
+    }
+
+    public static String timestamInMillisecondToString(Long timestamp) {
+        if (timestamp != null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            return simpleDateFormat.format(new Date(timestamp));
+        } else {
+            return null;
+        }
     }
 
     public static String convertByteToMegabyte(Long bytes) {
-        DecimalFormat decimalFormat = new DecimalFormat("#.00");
-        return decimalFormat.format(bytes / 1024 / 1024.0);
+        if (bytes != null) {
+            DecimalFormat decimalFormat = new DecimalFormat("#.00");
+            return decimalFormat.format(bytes / 1024 / 1024.0);
+        } else {
+            return null;
+        }
     }
 
     public static String urlEncode(String str) {

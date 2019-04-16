@@ -1,5 +1,7 @@
 package cc.lgiki.shanlinghelper.model;
 
+import java.io.File;
+
 public class ShanLingFileModel implements Comparable<ShanLingFileModel> {
     private String path;
     private String name;
@@ -24,6 +26,16 @@ public class ShanLingFileModel implements Comparable<ShanLingFileModel> {
         this.name = name;
         this.ctime = ctime;
         this.size = null;
+    }
+
+    public ShanLingFileModel(String path) {
+        this.path = path;
+        File file = new File(path);
+        if (file.exists() && file.isFile()) {
+            this.size = file.length();
+            this.name = file.getName();
+            this.ctime = file.lastModified();
+        }
     }
 
     public String getPath() {

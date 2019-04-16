@@ -1,44 +1,38 @@
 package cc.lgiki.shanlinghelper.adapter;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
 import cc.lgiki.shanlinghelper.R;
-import cc.lgiki.shanlinghelper.holder.UploadFileItemViewHolder;
+import cc.lgiki.shanlinghelper.holder.ShanLingFileItemViewHolder;
+import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
+import cc.lgiki.shanlinghelper.util.TextUtil;
 
-public class UploadFileListAdapter extends RecyclerView.Adapter<UploadFileItemViewHolder> {
-    private Context context;
-    private List<String> uploadFileList;
-
-
-    @NonNull
-    @Override
-    public UploadFileItemViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_upload_file, viewGroup, false);
-        UploadFileItemViewHolder viewHolder = new UploadFileItemViewHolder(view);
-        return viewHolder;
+public class UploadFileListAdapter extends ShanLingFileListAdapter {
+    public UploadFileListAdapter(Context context, List<ShanLingFileModel> shanLingFileModelList) {
+        super(context, shanLingFileModelList);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UploadFileItemViewHolder uploadFileItemViewHolder, int i) {
-        int position = uploadFileItemViewHolder.getAdapterPosition();
-        String uploadFilePath = uploadFileList.get(position);
-        uploadFileItemViewHolder.uploadFilePath.setText(uploadFilePath);
-    }
-
-    @Override
-    public int getItemCount() {
-        return uploadFileList.size();
-    }
-
-    public UploadFileListAdapter(Context context, List<String> uploadFileList) {
-        this.context = context;
-        this.uploadFileList = uploadFileList;
+    public void onBindViewHolder(@NonNull ShanLingFileItemViewHolder shanLingFileItemViewHolder, int i) {
+        int position = shanLingFileItemViewHolder.getAdapterPosition();
+        ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
+        String filePath = shanLingFileModel.getPath();
+        String fileName = shanLingFileModel.getName();
+        String fileLastModifiedDate = TextUtil.timestamInMillisecondToString(shanLingFileModel.getCtime());
+        String fileSize = TextUtil.convertByteToMegabyte(shanLingFileModel.getSize()) + " MB";
+        shanLingFileItemViewHolder.fileName.setText(fileName == null ? filePath : fileName);
+        shanLingFileItemViewHolder.fileCreateTime.setText(fileLastModifiedDate == null ? context.getResources().getString(R.string.message_unknown_create_date) : fileLastModifiedDate);
+        shanLingFileItemViewHolder.fileSize.setText(fileSize);
+        int fileIconResourceId = getFileIconResourceId(shanLingFileModel);
+        Glide.with(context)
+                .load(fileIconResourceId)
+                .into(shanLingFileItemViewHolder.fileIcon);
+        shanLingFileItemViewHolder.itemView.setClickable(false);
     }
 }

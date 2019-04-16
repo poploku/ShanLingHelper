@@ -16,6 +16,8 @@
     <string name="message_uploading_progress">Current uploading: %1$s\nCurrent file progress: %2$d&#37;&#37;\nProgress: %3$d / %4$d\nUpload Rate: %5$s</string>
     <string name="message_upload_success">Successful uploaded %1$d file(s)</string>
     <string name="message_current_path">Current path：%1$s</string>
+    <string name="message_unknown_create_date">Unknown Date</string>
+    <string name="message_unknown_file_size">Unknown Size</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="menu_exit">Exit</string>

@@ -19,9 +19,8 @@ import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
 import cc.lgiki.shanlinghelper.util.TextUtil;
 
 public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileItemViewHolder> {
-    private static final String TAG = "ShanLingFileListAdapter";
-    private Context context;
-    private List<ShanLingFileModel> shanLingFileModelList;
+    Context context;
+    List<ShanLingFileModel> shanLingFileModelList;
     private OnItemClickListener onItemClickListener;
 
     @NonNull
@@ -37,7 +36,7 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
         int position = shanLingFileItemViewHolder.getAdapterPosition();
         ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
         shanLingFileItemViewHolder.fileName.setText(shanLingFileModel.getName());
-        shanLingFileItemViewHolder.fileCreateTime.setText(TextUtil.timestampToString(shanLingFileModel.getCtime()));
+        shanLingFileItemViewHolder.fileCreateTime.setText(TextUtil.timestampInSecondToString(shanLingFileModel.getCtime()));
         shanLingFileItemViewHolder.fileSize.setText("");
         if (shanLingFileModel.isFile()) {
             shanLingFileItemViewHolder.fileSize.setText(TextUtil.convertByteToMegabyte(shanLingFileModel.getSize()) + "MB");
@@ -51,10 +50,9 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
             shanLingFileItemViewHolder.itemView.setClickable(true);
             shanLingFileItemViewHolder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(v, position));
         }
-
     }
 
-    private int getFileIconResourceId(ShanLingFileModel shanLingFileModel) {
+    int getFileIconResourceId(ShanLingFileModel shanLingFileModel) {
         int resourceId = R.drawable.ic_folder;
         switch (shanLingFileModel.getFileType()) {
             case ShanLingFileModel.FILE_TYPE_MUSIC:

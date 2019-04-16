@@ -33,6 +33,7 @@ import java.util.List;
 import cc.lgiki.shanlinghelper.MyApplication;
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.adapter.UploadFileListAdapter;
+import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
 import cc.lgiki.shanlinghelper.util.TextUtil;
 import cc.lgiki.shanlinghelper.util.ToastUtil;
 
@@ -40,7 +41,7 @@ public class UploadActivity extends AppCompatActivity {
     private static final String TAG = "UploadActivity";
     public static final int REQUEST_CODE = 10180;
     private Toolbar toolbar;
-    private List<String> uploadFilePathList;
+    private List<ShanLingFileModel> uploadFileList;
     private String uploadPath;
     private String shanLingWiFiTransferBaseUrl;
     private FloatingActionButton submitUploadButton;
@@ -54,11 +55,11 @@ public class UploadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
         Intent intent = getIntent();
-        uploadFilePathList = intent.getStringArrayListExtra("uploadFilePathList");
         uploadPath = intent.getStringExtra("uploadPath");
         uploadPath = TextUtil.urlDecode(uploadPath);
-        initView();
+        initUploadFileListByFilePath(intent.getStringArrayListExtra("uploadFilePathList"));
         initData();
+        initView();
     }
 
     private void initView() {
@@ -74,11 +75,11 @@ public class UploadActivity extends AppCompatActivity {
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         uploadFileListRecyclerView.setLayoutManager(layoutManager);
-        uploadFileListAdapter = new UploadFileListAdapter(this, uploadFilePathList);
+        uploadFileListAdapter = new UploadFileListAdapter(this, uploadFileList);
         uploadFileListRecyclerView.setAdapter(uploadFileListAdapter);
         uploadPathTextView.setText(String.format(getResources().getString(R.string.message_file_will_upload_to), uploadPath));
         submitUploadButton.setOnClickListener((v -> {
-            if (uploadPath != null && !"".equals(uploadPath) && uploadFilePathList.size() > 0) {
+            if (uploadPath != null && !"".equals(uploadPath) && uploadFileList.size() > 0) {
                 if (uploadProgressDialog == null) {
                     uploadProgressDialog = new ProgressDialog(UploadActivity.this);
                 }
@@ -92,13 +93,14 @@ public class UploadActivity extends AppCompatActivity {
                 List<MultipartUploadRequest> multipartUploadRequestList = new ArrayList<>();
                 List<String> uploadSuccessFileList = new ArrayList<>();
                 List<String> uploadFailFileList = new ArrayList<>();
-                for (String filePath : uploadFilePathList) {
+                for (ShanLingFileModel uploadFile : uploadFileList) {
+                    String filePath = uploadFile.getPath();
                     try {
                         MultipartUploadRequest multipartUploadRequest = new MultipartUploadRequest(UploadActivity.this, serverUrl);
                         multipartUploadRequest.setDelegate(new UploadStatusDelegate() {
-                            private int currentIndex = uploadFilePathList.indexOf(filePath);
-                            private int totalFiles = uploadFilePathList.size();
-                            private String currentUploadFileName = new File(filePath).getName();
+                            private int currentIndex = uploadFileList.indexOf(uploadFile);
+                            private int totalFiles = uploadFileList.size();
+                            private String currentUploadFileName = uploadFile.getName();
 
                             @Override
                             public void onProgress(Context context, UploadInfo uploadInfo) {
@@ -114,7 +116,7 @@ public class UploadActivity extends AppCompatActivity {
                             @Override
                             public void onCompleted(Context context, UploadInfo uploadInfo, ServerResponse serverResponse) {
                                 uploadSuccessFileList.add(filePath);
-                                if (currentIndex + 1 == uploadFilePathList.size()) {
+                                if (currentIndex + 1 == totalFiles) {
                                     uploadProgressDialog.cancel();
                                     ToastUtil.showShortToast(UploadActivity.this, String.format(getResources().getString(R.string.message_upload_success), uploadSuccessFileList.size()));
                                     setResult(Activity.RESULT_OK);
@@ -158,6 +160,13 @@ public class UploadActivity extends AppCompatActivity {
         if (shanLingWiFiTransferBaseUrl == null) {
             ToastUtil.showShortToast(this, R.string.message_can_not_get_shanling_wifi_transfer_url);
             finish();
+        }
+    }
+
+    private void initUploadFileListByFilePath(List<String> uploadFilePathList) {
+        uploadFileList = new ArrayList<>();
+        for (String filePath : uploadFilePathList) {
+            uploadFileList.add(new ShanLingFileModel(filePath));
         }
     }
 
