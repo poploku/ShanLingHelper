@@ -2,6 +2,8 @@ package cc.lgiki.shanlinghelper.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         sharedPreferencesUtil = SharedPreferencesUtil.getInstance(this, "config");
         shanLingWiFiTransferBaseUrl = sharedPreferencesUtil.getString("url");
         if (shanLingWiFiTransferBaseUrl == null || "".equals(shanLingWiFiTransferBaseUrl)) {
-            showDialog();
+            showWiFiTransferUrlDialog();
         } else {
             MyApplication.setShanLingWiFiTransferBaseUrl(shanLingWiFiTransferBaseUrl);
             refreshShanLingFileList(pathStack.peek());
@@ -138,18 +140,28 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
     }
 
-    private void showDialog() {
+//    private void showDialog(Context context, int layoutId, int titleStringId, boolean cancelable, DialogInterface.OnClickListener positiveButtonOnClickListener, DialogInterface.OnClickListener negativeButtonOnClickListener) {
+//        View view = LayoutInflater.from(context).inflate(layoutId, null, false);
+//        new AlertDialog.Builder(context)
+//                .setTitle(titleStringId)
+//                .setCancelable(cancelable)
+//                .setPositiveButton(positiveButtonOnClickListener)
+//                .setNegativeButton(negativeButtonOnClickListener)
+//                .show();
+//    }
+
+    private void showWiFiTransferUrlDialog() {
         View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_shanling_url_input, null, false);
-        ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
+        ExtendedEditText shanlingWiFiTransferUrlExtendedEditText = view.findViewById(R.id.eet_wifi_transfer_url);
         new AlertDialog.Builder(this)
                 .setTitle(R.string.hint_enter_shanling_url)
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(R.string.btn_ok, ((dialog, which) -> {
-                    String shanLingWiFiTransferIp = extendedEditText.getText().toString();
+                    String shanLingWiFiTransferIp = shanlingWiFiTransferUrlExtendedEditText.getText().toString();
                     if (!RegexUtil.isIPAddress(shanLingWiFiTransferIp)) {
                         ToastUtil.showShortToast(this, R.string.message_shanling_url_error);
-                        showDialog();
+                        showWiFiTransferUrlDialog();
                     } else {
                         this.shanLingWiFiTransferBaseUrl = "http://" + shanLingWiFiTransferIp + ":8888/";
                         sharedPreferencesUtil.putString("url", shanLingWiFiTransferBaseUrl);
@@ -186,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             public void onFailure(Call call, IOException e) {
                 runOnUiThread(() -> {
                     ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error);
-                    showDialog();
+                    showWiFiTransferUrlDialog();
                 });
                 shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                 Log.d(TAG, "onFailure: " + e.getMessage());
