@@ -50,6 +50,7 @@ import cc.lgiki.shanlinghelper.MyApplication;
 import cc.lgiki.shanlinghelper.adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
+import cc.lgiki.shanlinghelper.network.ShanlingWiFiTransferRequest;
 import cc.lgiki.shanlinghelper.util.TextUtil;
 import me.rosuh.filepicker.config.FilePickerManager;
 import okhttp3.Call;
@@ -73,11 +74,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     private SwipeRefreshLayout shanLingFileListSwipeRefreshLayout;
     private ShanLingFileListAdapter shanLingFileListAdapter;
     private TextView currentPathTextView;
-    private List<ShanLingFileModel> shanLingFileModelList = new ArrayList<>();
+    private List<ShanLingFileModel> shanLingFileModelList;
     private String shanLingWiFiTransferBaseUrl;
     private SharedPreferencesUtil sharedPreferencesUtil;
     private FloatingActionButton uploadButton;
-    private Stack<String> pathStack = new Stack<>();
+    private Stack<String> pathStack;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -93,8 +94,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         if (!EasyPermissions.hasPermissions(this, permissions)) {
             EasyPermissions.requestPermissions(this, this.getResources().getString(R.string.permission_rationale), 1, permissions);
         }
-        initView();
         initData();
+        initView();
         sharedPreferencesUtil = SharedPreferencesUtil.getInstance(this, "config");
         shanLingWiFiTransferBaseUrl = sharedPreferencesUtil.getString("url");
         if (shanLingWiFiTransferBaseUrl == null || "".equals(shanLingWiFiTransferBaseUrl)) {
@@ -152,10 +153,22 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 .setTitle(R.string.title_input_new_folder_name)
                 .setCancelable(true)
                 .setPositiveButton(R.string.btn_ok, ((dialogInterface, i) -> {
+                    String folderName = extendedEditText.getText().toString().trim();
+                    ShanlingWiFiTransferRequest.createFolder(pathStack.peek(), folderName, new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
 
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+
+                        }
+                    });
                 }))
                 .setNegativeButton(R.string.btn_cancel, null)
                 .show();
+        //TODO: when request send return false
     }
 
 
@@ -191,6 +204,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     }
 
     private void initData() {
+        shanLingFileModelList = new ArrayList<>();
+        pathStack = new Stack<>();
         pathStack.push(DEFAULT_PATH);
     }
 
@@ -206,8 +221,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
 
     private void refreshShanLingFileList(String path) {
         shanLingFileListSwipeRefreshLayout.setRefreshing(true);
-        String url = shanLingWiFiTransferBaseUrl + "list?path=" + path;
-        HttpUtil.sendOkHttpRequest(url, new Callback() {
+        boolean requestResult = ShanlingWiFiTransferRequest.getFileList(path, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 runOnUiThread(() -> {
@@ -247,6 +261,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 }
             }
         });
+        if (!requestResult) {
+            ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error);
+        }
     }
 
     @Override
