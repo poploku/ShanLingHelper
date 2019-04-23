@@ -61,6 +61,7 @@ import cc.lgiki.shanlinghelper.util.HttpUtil;
 import cc.lgiki.shanlinghelper.util.RegexUtil;
 import cc.lgiki.shanlinghelper.util.SharedPreferencesUtil;
 import cc.lgiki.shanlinghelper.util.ToastUtil;
+import studio.carbonylgroup.textfieldboxes.TextFieldBoxes;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
     private final String DEFAULT_PATH = "%2Fmnt%2Fmmc%2F";
@@ -140,25 +141,35 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
     }
 
-//    private void showDialog(Context context, int layoutId, int titleStringId, boolean cancelable, DialogInterface.OnClickListener positiveButtonOnClickListener, DialogInterface.OnClickListener negativeButtonOnClickListener) {
-//        View view = LayoutInflater.from(context).inflate(layoutId, null, false);
-//        new AlertDialog.Builder(context)
-//                .setTitle(titleStringId)
-//                .setCancelable(cancelable)
-//                .setPositiveButton(positiveButtonOnClickListener)
-//                .setNegativeButton(negativeButtonOnClickListener)
-//                .show();
-//    }
+    private void showDialog(Context context, int layoutId, int titleStringId, boolean cancelable, int positiveButtonStringId, DialogInterface.OnClickListener positiveButtonOnClickListener, int negativeStringId, DialogInterface.OnClickListener negativeButtonOnClickListener) {
+        View view = LayoutInflater.from(context).inflate(layoutId, null, false);
+        new AlertDialog.Builder(context)
+                .setTitle(titleStringId)
+                .setCancelable(cancelable)
+                .setPositiveButton(positiveButtonStringId, positiveButtonOnClickListener)
+                .setNegativeButton(negativeStringId, negativeButtonOnClickListener)
+                .show();
+    }
+
+    private void showNewFolderDialog() {
+
+    }
+
 
     private void showWiFiTransferUrlDialog() {
-        View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_shanling_url_input, null, false);
-        ExtendedEditText shanlingWiFiTransferUrlExtendedEditText = view.findViewById(R.id.eet_wifi_transfer_url);
+        View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
+        TextFieldBoxes textFieldBoxes = (TextFieldBoxes) view.findViewById(R.id.text_field_boxes);
+        ExtendedEditText extendedEditText = (ExtendedEditText) view.findViewById(R.id.extended_edit_text);
+        textFieldBoxes.setMaxCharacters(15);
+        textFieldBoxes.setLabelText("URL");
+        extendedEditText.setPrefix("http://");
+        extendedEditText.setSuffix(":8888");
         new AlertDialog.Builder(this)
                 .setTitle(R.string.hint_enter_shanling_url)
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(R.string.btn_ok, ((dialog, which) -> {
-                    String shanLingWiFiTransferIp = shanlingWiFiTransferUrlExtendedEditText.getText().toString();
+                    String shanLingWiFiTransferIp = extendedEditText.getText().toString();
                     if (!RegexUtil.isIPAddress(shanLingWiFiTransferIp)) {
                         ToastUtil.showShortToast(this, R.string.message_shanling_url_error);
                         showWiFiTransferUrlDialog();

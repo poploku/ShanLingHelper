@@ -5,21 +5,17 @@
     android:layout_height="wrap_content">
 
     <studio.carbonylgroup.textfieldboxes.TextFieldBoxes
-        android:id="@+id/tfb_wifi_transfer_url"
+        android:id="@+id/text_field_boxes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        app:labelText="URL"
-        app:maxCharacters="15"
         app:panelBackgroundColor="#ffffff">
 
         <studio.carbonylgroup.textfieldboxes.ExtendedEditText
-            android:id="@+id/eet_wifi_transfer_url"
+            android:id="@+id/extended_edit_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:prefix="http://"
-            app:suffix=":8888" />
+            android:layout_height="wrap_content" />
 
     </studio.carbonylgroup.textfieldboxes.TextFieldBoxes>
 
