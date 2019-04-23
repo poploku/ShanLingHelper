@@ -154,9 +154,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 .setPositiveButton(R.string.btn_ok, ((dialogInterface, i) -> {
 
                 }))
-                .setNegativeButton(R.string.btn_cancel, ((dialogInterface, i) -> {
-
-                }))
+                .setNegativeButton(R.string.btn_cancel, null)
                 .show();
     }
 
@@ -237,13 +235,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
                     shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                     currentPathTextView.setText(String.format(getResources().getString(R.string.message_current_path), TextUtil.urlDecode(pathStack.peek())));
-                } catch (JsonSyntaxException e) {
-                    e.printStackTrace();
-                    runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));
-                    pathStack.pop();
-                    refreshShanLingFileList(pathStack.peek());
-                    shanLingFileListSwipeRefreshLayout.setRefreshing(false);
-                } catch (IllegalStateException e) {
+                } catch (JsonSyntaxException | IllegalStateException e) {
                     e.printStackTrace();
                     runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));
                     pathStack.pop();
