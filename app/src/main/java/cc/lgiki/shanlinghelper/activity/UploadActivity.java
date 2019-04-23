@@ -48,7 +48,6 @@ public class UploadActivity extends AppCompatActivity {
     private RecyclerView uploadFileListRecyclerView;
     private UploadFileListAdapter uploadFileListAdapter;
     private ProgressDialog uploadProgressDialog;
-    private MultipartUploadRequest multipartUploadRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +62,10 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        TextView uploadPathTextView = (TextView) findViewById(R.id.tv_upload_to_path);
-        toolbar = (Toolbar) findViewById(R.id.tb_upload);
-        uploadFileListRecyclerView = (RecyclerView) findViewById(R.id.rv_upload_file_list);
-        submitUploadButton = (FloatingActionButton) findViewById(R.id.fab_upload_submit);
+        TextView uploadPathTextView = findViewById(R.id.tv_upload_to_path);
+        toolbar = findViewById(R.id.tb_upload);
+        uploadFileListRecyclerView = findViewById(R.id.rv_upload_file_list);
+        submitUploadButton = findViewById(R.id.fab_upload_submit);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {

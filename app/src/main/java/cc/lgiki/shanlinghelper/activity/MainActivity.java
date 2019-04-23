@@ -106,13 +106,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     }
 
     private void initView() {
-        toolbar = (Toolbar) findViewById(R.id.tb_main);
-        drawerLayout = (DrawerLayout) findViewById(R.id.dl_main);
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        shanLingFileListRecyclerView = (RecyclerView) findViewById(R.id.rv_shanling_file_list);
-        uploadButton = (FloatingActionButton) findViewById(R.id.fab_upload_here);
-        shanLingFileListSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_shanling_file_list);
-        currentPathTextView = (TextView) findViewById(R.id.tv_current_path);
+        toolbar = findViewById(R.id.tb_main);
+        drawerLayout = findViewById(R.id.dl_main);
+        navigationView = findViewById(R.id.nav_view);
+        shanLingFileListRecyclerView = findViewById(R.id.rv_shanling_file_list);
+        uploadButton = findViewById(R.id.fab_upload_here);
+        shanLingFileListSwipeRefreshLayout = findViewById(R.id.srl_shanling_file_list);
+        currentPathTextView = findViewById(R.id.tv_current_path);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -141,25 +141,30 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
     }
 
-    private void showDialog(Context context, int layoutId, int titleStringId, boolean cancelable, int positiveButtonStringId, DialogInterface.OnClickListener positiveButtonOnClickListener, int negativeStringId, DialogInterface.OnClickListener negativeButtonOnClickListener) {
-        View view = LayoutInflater.from(context).inflate(layoutId, null, false);
-        new AlertDialog.Builder(context)
-                .setTitle(titleStringId)
-                .setCancelable(cancelable)
-                .setPositiveButton(positiveButtonStringId, positiveButtonOnClickListener)
-                .setNegativeButton(negativeStringId, negativeButtonOnClickListener)
-                .show();
-    }
 
     private void showNewFolderDialog() {
+        View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
+        TextFieldBoxes textFieldBoxes = view.findViewById(R.id.text_field_boxes);
+        ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
+        textFieldBoxes.setLabelText(getResources().getString(R.string.message_new_folder_name));
+        new AlertDialog.Builder(this)
+                .setView(view)
+                .setTitle(R.string.title_input_new_folder_name)
+                .setCancelable(true)
+                .setPositiveButton(R.string.btn_ok, ((dialogInterface, i) -> {
 
+                }))
+                .setNegativeButton(R.string.btn_cancel, ((dialogInterface, i) -> {
+
+                }))
+                .show();
     }
 
 
     private void showWiFiTransferUrlDialog() {
         View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
-        TextFieldBoxes textFieldBoxes = (TextFieldBoxes) view.findViewById(R.id.text_field_boxes);
-        ExtendedEditText extendedEditText = (ExtendedEditText) view.findViewById(R.id.extended_edit_text);
+        TextFieldBoxes textFieldBoxes = view.findViewById(R.id.text_field_boxes);
+        ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
         textFieldBoxes.setMaxCharacters(15);
         textFieldBoxes.setLabelText("URL");
         extendedEditText.setPrefix("http://");
@@ -288,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 finish();
                 break;
             case R.id.menu_new_folder:
+                showNewFolderDialog();
                 break;
             default:
                 break;

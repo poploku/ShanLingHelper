@@ -19,10 +19,12 @@
     <string name="message_current_path">当前路径：%1$s</string>
     <string name="message_unknown_create_date">修改日期未知</string>
     <string name="message_unknown_file_size">文件大小未知</string>
+    <string name="message_new_folder_name">新文件夹名称</string>
     <string name="btn_ok">确认</string>
     <string name="btn_cancel">取消</string>
     <string name="menu_exit">退出</string>
     <string name="menu_new_folder">新建文件夹</string>
     <string name="title_upload_activity">确认上传以下文件?</string>
     <string name="title_uploading">上传文件到山灵音乐播放器</string>
+    <string name="title_input_new_folder_name">请输入新文件夹的名称</string>
 </resources>

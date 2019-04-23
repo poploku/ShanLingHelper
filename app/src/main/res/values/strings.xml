@@ -18,11 +18,12 @@
     <string name="message_current_path">Current path：%1$s</string>
     <string name="message_unknown_create_date">Unknown Date</string>
     <string name="message_unknown_file_size">Unknown Size</string>
+    <string name="message_new_folder_name">New Folder Name</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="menu_exit">Exit</string>
     <string name="menu_new_folder">New Folder</string>
     <string name="title_upload_activity">Confirm upload the files below?</string>
     <string name="title_uploading">Upload files to Shanling player</string>
-
+    <string name="title_input_new_folder_name">Please enter new folder name</string>
 </resources>
