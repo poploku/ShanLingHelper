@@ -154,21 +154,31 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 .setCancelable(true)
                 .setPositiveButton(R.string.btn_ok, ((dialogInterface, i) -> {
                     String folderName = extendedEditText.getText().toString().trim();
-                    ShanlingWiFiTransferRequest.createFolder(pathStack.peek(), folderName, new Callback() {
+                    boolean requestResult = ShanlingWiFiTransferRequest.createFolder(pathStack.peek(), folderName, new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
-
+                            runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_create_folder_error));
+                            Log.d(TAG, "onFailure: " + e.getMessage());
                         }
 
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
-
+                            if (response.code() == 200) {
+                                runOnUiThread(() -> {
+                                    ToastUtil.showShortToast(MainActivity.this, R.string.message_create_folder_success);
+                                    refreshShanLingFileList(pathStack.peek());
+                                });
+                            } else {
+                                runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_create_folder_error));
+                            }
                         }
                     });
+                    if (!requestResult) {
+                        runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_create_folder_error));
+                    }
                 }))
                 .setNegativeButton(R.string.btn_cancel, null)
                 .show();
-        //TODO: when request send return false
     }
 
 
