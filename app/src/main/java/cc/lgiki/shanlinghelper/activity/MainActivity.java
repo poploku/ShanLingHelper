@@ -3,7 +3,6 @@ package cc.lgiki.shanlinghelper.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -58,7 +57,6 @@ import okhttp3.Callback;
 import okhttp3.Response;
 import pub.devrel.easypermissions.EasyPermissions;
 import studio.carbonylgroup.textfieldboxes.ExtendedEditText;
-import cc.lgiki.shanlinghelper.util.HttpUtil;
 import cc.lgiki.shanlinghelper.util.RegexUtil;
 import cc.lgiki.shanlinghelper.util.SharedPreferencesUtil;
 import cc.lgiki.shanlinghelper.util.ToastUtil;

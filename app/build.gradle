@@ -39,5 +39,6 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     implementation 'com.github.HITGIF:TextFieldBoxes:1.4.4'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
-    implementation "net.gotev:uploadservice:3.5.2"
+    implementation 'net.gotev:uploadservice:3.5.2'
+    implementation 'com.github.goyourfly:MultiSelectAdapter:3.8'
 }
