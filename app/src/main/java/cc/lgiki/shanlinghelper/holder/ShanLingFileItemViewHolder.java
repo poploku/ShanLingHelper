@@ -2,6 +2,7 @@ package cc.lgiki.shanlinghelper.holder;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,9 +17,9 @@ public class ShanLingFileItemViewHolder extends RecyclerView.ViewHolder {
 
     public ShanLingFileItemViewHolder(@NonNull View itemView) {
         super(itemView);
-        fileIcon = (ImageView) itemView.findViewById(R.id.iv_file_icon);
-        fileName = (TextView) itemView.findViewById(R.id.tv_file_name);
-        fileCreateTime = (TextView) itemView.findViewById(R.id.tv_file_create_time);
-        fileSize = (TextView) itemView.findViewById(R.id.tv_file_size);
+        fileIcon = itemView.findViewById(R.id.iv_file_icon);
+        fileName = itemView.findViewById(R.id.tv_file_name);
+        fileCreateTime = itemView.findViewById(R.id.tv_file_create_time);
+        fileSize = itemView.findViewById(R.id.tv_file_size);
     }
 }
