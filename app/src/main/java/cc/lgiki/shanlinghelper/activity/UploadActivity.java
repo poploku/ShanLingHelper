@@ -33,6 +33,7 @@ import java.util.List;
 import cc.lgiki.shanlinghelper.MyApplication;
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.adapter.UploadFileListAdapter;
+import cc.lgiki.shanlinghelper.decoration.SimplePaddingDecoration;
 import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
 import cc.lgiki.shanlinghelper.util.TextUtil;
 import cc.lgiki.shanlinghelper.util.ToastUtil;
@@ -76,6 +77,7 @@ public class UploadActivity extends AppCompatActivity {
         uploadFileListRecyclerView.setLayoutManager(layoutManager);
         uploadFileListAdapter = new UploadFileListAdapter(this, uploadFileList);
         uploadFileListRecyclerView.setAdapter(uploadFileListAdapter);
+//        uploadFileListRecyclerView.addItemDecoration(new SimplePaddingDecoration(25));
         uploadPathTextView.setText(String.format(getResources().getString(R.string.message_file_will_upload_to), uploadPath));
         submitUploadButton.setOnClickListener((v -> {
             if (uploadPath != null && !"".equals(uploadPath) && uploadFileList.size() > 0) {

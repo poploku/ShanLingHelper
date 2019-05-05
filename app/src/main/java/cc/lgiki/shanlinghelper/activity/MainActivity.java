@@ -2,7 +2,6 @@ package cc.lgiki.shanlinghelper.activity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -11,6 +10,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,7 +38,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.goyourfly.multiple.adapter.MultipleAdapter;
+import com.goyourfly.multiple.adapter.MultipleSelect;
+import com.goyourfly.multiple.adapter.StateChangeListener;
+import com.goyourfly.multiple.adapter.menu.CustomMenuBar;
+import com.goyourfly.multiple.adapter.menu.MenuController;
+import com.goyourfly.multiple.adapter.menu.SimpleDeleteSelectAllMenuBar;
+import com.goyourfly.multiple.adapter.viewholder.color.ColorFactory;
 
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,18 +74,43 @@ import studio.carbonylgroup.textfieldboxes.TextFieldBoxes;
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
     private final String DEFAULT_PATH = "%2Fmnt%2Fmmc%2F";
     private static final String TAG = "MainActivity";
-    private Toolbar toolbar;
     private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-    private RecyclerView shanLingFileListRecyclerView;
     private SwipeRefreshLayout shanLingFileListSwipeRefreshLayout;
-    private ShanLingFileListAdapter shanLingFileListAdapter;
     private TextView currentPathTextView;
     private List<ShanLingFileModel> shanLingFileModelList;
     private String shanLingWiFiTransferBaseUrl;
     private SharedPreferencesUtil sharedPreferencesUtil;
-    private FloatingActionButton uploadButton;
     private Stack<String> pathStack;
+    private MultipleAdapter multipleAdapter;
+
+    class MyMenuBar extends CustomMenuBar {
+        @Override
+        public void onMenuItemClick(@NotNull MenuItem menuItem, @NotNull MenuController menuController) {
+            int itemId = menuItem.getItemId();
+            switch (itemId) {
+                case R.id.menu_select_all:
+                    menuController.selectAll();
+                    break;
+                case R.id.menu_rename:
+                    break;
+                case R.id.menu_delete:
+                    menuController.delete(true);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        public void onUpdateTitle(int selectCount, int total) {
+            super.onUpdateTitle(selectCount, total);
+        }
+
+        public MyMenuBar(@NotNull Activity activity, int menuId, int menuBgColor, int gravity) {
+            super(activity, menuId, menuBgColor, gravity);
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,11 +139,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     }
 
     private void initView() {
-        toolbar = findViewById(R.id.tb_main);
+        Toolbar toolbar = findViewById(R.id.tb_main);
         drawerLayout = findViewById(R.id.dl_main);
-        navigationView = findViewById(R.id.nav_view);
-        shanLingFileListRecyclerView = findViewById(R.id.rv_shanling_file_list);
-        uploadButton = findViewById(R.id.fab_upload_here);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        RecyclerView shanLingFileListRecyclerView = findViewById(R.id.rv_shanling_file_list);
+        FloatingActionButton uploadButton = findViewById(R.id.fab_upload_here);
         shanLingFileListSwipeRefreshLayout = findViewById(R.id.srl_shanling_file_list);
         currentPathTextView = findViewById(R.id.tv_current_path);
         setSupportActionBar(toolbar);
@@ -118,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        shanLingFileListSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
         navigationView.setCheckedItem(R.id.nav_upload);
         navigationView.setNavigationItemSelectedListener(menuItem -> {
                     drawerLayout.closeDrawers();
@@ -127,8 +163,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListSwipeRefreshLayout.setOnRefreshListener(() -> refreshShanLingFileList(pathStack.peek()));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         shanLingFileListRecyclerView.setLayoutManager(layoutManager);
-        shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
-        shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
+        ShanLingFileListAdapter shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
         shanLingFileListAdapter.setOnItemClickListener((view, position) -> {
             ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
             String newPath = TextUtil.urlEncode(shanLingFileModel.getPath());
@@ -137,6 +172,44 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             }
             refreshShanLingFileList(pathStack.peek());
         });
+        multipleAdapter = MultipleSelect.with(this)
+                .adapter(shanLingFileListAdapter)
+                .linkList(shanLingFileModelList)
+                .decorateFactory(new ColorFactory())
+                .customMenu(new MyMenuBar(this, R.menu.selected_menu, ContextCompat.getColor(this, R.color.colorPrimary), Gravity.TOP))
+                .stateChangeListener(new StateChangeListener() {
+                    @Override
+                    public void onSelectMode() {
+
+                    }
+
+                    @Override
+                    public void onSelect(int i, int i1) {
+
+                    }
+
+                    @Override
+                    public void onUnSelect(int i, int i1) {
+
+                    }
+
+                    @Override
+                    public void onDone(@NotNull ArrayList<Integer> arrayList) {
+
+                    }
+
+                    @Override
+                    public void onDelete(@NotNull ArrayList<Integer> arrayList) {
+
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                })
+                .build();
+        shanLingFileListRecyclerView.setAdapter(multipleAdapter);
         uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
     }
 
@@ -254,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                         shanLingFileModelList.add(shanLingFileModel);
                     }
                     Collections.sort(shanLingFileModelList);
-                    runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
+                    runOnUiThread(() -> multipleAdapter.notifyDataSetChanged());
                     shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                     currentPathTextView.setText(String.format(getResources().getString(R.string.message_current_path), TextUtil.urlDecode(pathStack.peek())));
                 } catch (JsonSyntaxException | IllegalStateException e) {

@@ -25,6 +25,9 @@
     <string name="btn_cancel">Cancel</string>
     <string name="menu_exit">Exit</string>
     <string name="menu_new_folder">New Folder</string>
+    <string name="menu_select_all">Select All</string>
+    <string name="menu_delete">Delete</string>
+    <string name="menu_rename">Rename</string>
     <string name="title_upload_activity">Confirm upload the files below?</string>
     <string name="title_uploading">Upload files to Shanling player</string>
     <string name="title_input_new_folder_name">Please enter new folder name</string>

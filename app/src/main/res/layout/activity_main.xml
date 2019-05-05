@@ -51,7 +51,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:src="@drawable/ic_upload"
-            app:elevation="8dp" />
+            app:elevation="5dp" />
 
     </FrameLayout>
 
