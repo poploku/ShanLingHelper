@@ -72,7 +72,7 @@ import cc.lgiki.shanlinghelper.util.ToastUtil;
 import studio.carbonylgroup.textfieldboxes.TextFieldBoxes;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
-    private final String DEFAULT_PATH = "%2Fmnt%2Fmmc%2F";
+    private final String DEFAULT_PATH = "/mnt/mmc/";
     private static final String TAG = "MainActivity";
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout shanLingFileListSwipeRefreshLayout;
@@ -94,7 +94,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 case R.id.menu_rename:
                     break;
                 case R.id.menu_delete:
-                    menuController.delete(true);
+                    List<Integer> selectedIndexList = menuController.getSelect();
+                    String currentFolderPath = pathStack.peek();
+//                    for(int index : selectedIndexList) {
+//                        String deleteFilePath = currentFolderPath +
+//                        boolean requestResult = ShanlingWiFiTransferRequest.delete()
+//                    }
                     break;
                 default:
                     break;
@@ -166,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         ShanLingFileListAdapter shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
         shanLingFileListAdapter.setOnItemClickListener((view, position) -> {
             ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
-            String newPath = TextUtil.urlEncode(shanLingFileModel.getPath());
+            String newPath = shanLingFileModel.getPath();
             if (newPath != null && !pathStack.peek().equals(newPath)) {
                 pathStack.push(newPath);
             }
@@ -177,37 +182,37 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 .linkList(shanLingFileModelList)
                 .decorateFactory(new ColorFactory())
                 .customMenu(new MyMenuBar(this, R.menu.selected_menu, ContextCompat.getColor(this, R.color.colorPrimary), Gravity.TOP))
-                .stateChangeListener(new StateChangeListener() {
-                    @Override
-                    public void onSelectMode() {
-
-                    }
-
-                    @Override
-                    public void onSelect(int i, int i1) {
-
-                    }
-
-                    @Override
-                    public void onUnSelect(int i, int i1) {
-
-                    }
-
-                    @Override
-                    public void onDone(@NotNull ArrayList<Integer> arrayList) {
-
-                    }
-
-                    @Override
-                    public void onDelete(@NotNull ArrayList<Integer> arrayList) {
-
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-                })
+//                .stateChangeListener(new StateChangeListener() {
+//                    @Override
+//                    public void onSelectMode() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onSelect(int i, int i1) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onUnSelect(int i, int i1) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onDone(@NotNull ArrayList<Integer> arrayList) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onDelete(@NotNull ArrayList<Integer> arrayList) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onCancel() {
+//
+//                    }
+//                })
                 .build();
         shanLingFileListRecyclerView.setAdapter(multipleAdapter);
         uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
