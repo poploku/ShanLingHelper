@@ -322,6 +322,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     String responseString = response.body().string();
+                    Log.d(TAG, "onResponse: " + responseString);
                     JsonParser parser = new JsonParser();
                     JsonArray rootJsonArray = parser.parse(responseString).getAsJsonArray();
                     Gson gson = new Gson();
@@ -334,12 +335,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     Collections.sort(shanLingFileModelList);
                     runOnUiThread(() -> multipleAdapter.notifyDataSetChanged());
                     shanLingFileListSwipeRefreshLayout.setRefreshing(false);
-                    currentPathTextView.setText(String.format(getResources().getString(R.string.message_current_path), TextUtil.urlDecode(pathStack.peek())));
+                    currentPathTextView.setText(String.format(getResources().getString(R.string.message_current_path), pathStack.peek()));
                 } catch (JsonSyntaxException | IllegalStateException e) {
                     e.printStackTrace();
                     runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));
                     pathStack.pop();
-                    refreshShanLingFileList(pathStack.peek());
+                    if(!pathStack.isEmpty()) {
+                        refreshShanLingFileList(pathStack.peek());
+                    }
                     shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                 } catch (Exception e) {
                     e.printStackTrace();

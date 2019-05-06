@@ -18,10 +18,10 @@ public class ShanlingWiFiTransferRequest {
     }
 
     public static boolean createFolder(String currentPath, String folderName, okhttp3.Callback callback) {
-        if (!currentPath.endsWith("%2F")) {
-            currentPath += "%2F";
+        if (!currentPath.endsWith("/")) {
+            currentPath += "/";
         }
-        String path = currentPath + TextUtil.urlEncode(folderName);
+        String path = currentPath + folderName;
         String shanLingWiFiTransferBaseUrl = MyApplication.getShanLingWiFiTransferBaseUrl();
         if (shanLingWiFiTransferBaseUrl == null) {
             return false;

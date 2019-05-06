@@ -56,7 +56,7 @@ public class UploadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_upload);
         Intent intent = getIntent();
         uploadPath = intent.getStringExtra("uploadPath");
-        uploadPath = TextUtil.urlDecode(uploadPath);
+//        uploadPath = TextUtil.urlDecode(uploadPath);
         initUploadFileListByFilePath(intent.getStringArrayListExtra("uploadFilePathList"));
         initData();
         initView();
