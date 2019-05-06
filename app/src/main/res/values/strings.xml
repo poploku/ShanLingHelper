@@ -19,6 +19,7 @@
     <string name="message_unknown_create_date">Unknown Date</string>
     <string name="message_unknown_file_size">Unknown Size</string>
     <string name="message_new_folder_name">New Folder Name</string>
+    <string name="message_new_file_name">New File Name</string>
     <string name="message_create_folder_success">Create folder successfully</string>
     <string name="message_create_folder_error">Can not create folder</string>
     <string name="btn_ok">OK</string>
@@ -31,4 +32,5 @@
     <string name="title_upload_activity">Confirm upload the files below?</string>
     <string name="title_uploading">Upload files to Shanling player</string>
     <string name="title_input_new_folder_name">Please enter new folder name</string>
+    <string name="title_input_new_file_name">Please enter new file name</string>
 </resources>

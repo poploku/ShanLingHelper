@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
+import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -92,14 +93,29 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     menuController.selectAll();
                     break;
                 case R.id.menu_rename:
+
                     break;
                 case R.id.menu_delete:
                     List<Integer> selectedIndexList = menuController.getSelect();
                     String currentFolderPath = pathStack.peek();
-//                    for(int index : selectedIndexList) {
-//                        String deleteFilePath = currentFolderPath +
-//                        boolean requestResult = ShanlingWiFiTransferRequest.delete()
-//                    }
+                    for (int index : selectedIndexList) {
+                        String deleteFilePath = shanLingFileModelList.get(index).getPath();
+                        ShanlingWiFiTransferRequest.delete(deleteFilePath, new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                if (response.code() == 200) {
+                                    //TODO: delete successful
+                                } else {
+                                    //TODO: delete failed
+                                }
+                            }
+                        });
+                    }
                     break;
                 default:
                     break;
@@ -218,6 +234,25 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
     }
 
+
+    private void showRenameDialog(String oldFileName) {
+        View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
+        TextFieldBoxes textFieldBoxes = view.findViewById(R.id.text_field_boxes);
+        ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
+        textFieldBoxes.setLabelText(getResources().getString(R.string.message_new_file_name));
+        if (oldFileName != null) {
+            extendedEditText.setText(oldFileName);
+        }
+        new AlertDialog.Builder(this)
+                .setView(view)
+                .setTitle(R.string.title_input_new_file_name)
+                .setCancelable(true)
+                .setPositiveButton(R.string.btn_ok, (dialog, which) -> {
+                    //TODO: complete file rename action
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
 
     private void showNewFolderDialog() {
         View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
@@ -340,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     e.printStackTrace();
                     runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));
                     pathStack.pop();
-                    if(!pathStack.isEmpty()) {
+                    if (!pathStack.isEmpty()) {
                         refreshShanLingFileList(pathStack.peek());
                     }
                     shanLingFileListSwipeRefreshLayout.setRefreshing(false);
