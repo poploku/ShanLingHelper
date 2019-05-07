@@ -92,24 +92,38 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 case R.id.menu_select_all:
                     menuController.selectAll();
                     break;
-                case R.id.menu_rename:
-
-                    break;
-                case R.id.menu_delete:
+                case R.id.menu_rename: {
                     List<Integer> selectedIndexList = menuController.getSelect();
-                    String currentFolderPath = pathStack.peek();
+                    if (selectedIndexList.size() > 1) {
+                        ToastUtil.showShortToast(MainActivity.this, R.string.message_rename_select_too_many_files);
+                    } else {
+//                        showRenameDialog();
+                    }
+                    break;
+                }
+                case R.id.menu_delete: {
+                    List<Integer> selectedIndexList = menuController.getSelect();
+                    List<Integer> deletedIndexList = new ArrayList<>();
                     for (int index : selectedIndexList) {
                         String deleteFilePath = shanLingFileModelList.get(index).getPath();
                         ShanlingWiFiTransferRequest.delete(deleteFilePath, new Callback() {
                             @Override
                             public void onFailure(Call call, IOException e) {
-
+                                Log.d(TAG, "onFailure: " + e.getMessage());
                             }
 
                             @Override
                             public void onResponse(Call call, Response response) throws IOException {
                                 if (response.code() == 200) {
-                                    //TODO: delete successful
+                                    deletedIndexList.add(index);
+                                    if (index == selectedIndexList.get(selectedIndexList.size() - 1)) {
+                                        for (int index2 : deletedIndexList) {
+                                            shanLingFileModelList.remove(index2);
+                                        }
+                                        runOnUiThread(() -> {
+                                            multipleAdapter.notifyDataSetChanged();
+                                        });
+                                    }
                                 } else {
                                     //TODO: delete failed
                                 }
@@ -117,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                         });
                     }
                     break;
+                }
                 default:
                     break;
             }
@@ -357,7 +372,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     String responseString = response.body().string();
-                    Log.d(TAG, "onResponse: " + responseString);
                     JsonParser parser = new JsonParser();
                     JsonArray rootJsonArray = parser.parse(responseString).getAsJsonArray();
                     Gson gson = new Gson();

@@ -22,6 +22,7 @@
     <string name="message_new_file_name">New File Name</string>
     <string name="message_create_folder_success">Create folder successfully</string>
     <string name="message_create_folder_error">Can not create folder</string>
+    <string name="message_rename_select_too_many_files">Select too many files, just rename for only one file please</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="menu_exit">Exit</string>

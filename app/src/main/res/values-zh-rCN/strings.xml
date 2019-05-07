@@ -23,6 +23,7 @@
     <string name="message_new_file_name">新的文件名</string>
     <string name="message_create_folder_success">成功创建文件夹</string>
     <string name="message_create_folder_error">无法新建文件夹</string>
+    <string name="message_rename_select_too_many_files">一次只能重命名一个文件</string>
     <string name="btn_ok">确认</string>
     <string name="btn_cancel">取消</string>
     <string name="menu_exit">退出</string>
