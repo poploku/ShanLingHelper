@@ -26,11 +26,16 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.text.Layout;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -39,15 +44,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.goyourfly.multiple.adapter.MultipleAdapter;
-import com.goyourfly.multiple.adapter.MultipleSelect;
-import com.goyourfly.multiple.adapter.StateChangeListener;
-import com.goyourfly.multiple.adapter.menu.CustomMenuBar;
-import com.goyourfly.multiple.adapter.menu.MenuController;
-import com.goyourfly.multiple.adapter.menu.SimpleDeleteSelectAllMenuBar;
-import com.goyourfly.multiple.adapter.viewholder.color.ColorFactory;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,7 +57,6 @@ import cc.lgiki.shanlinghelper.adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
 import cc.lgiki.shanlinghelper.network.ShanlingWiFiTransferRequest;
-import cc.lgiki.shanlinghelper.util.TextUtil;
 import me.rosuh.filepicker.config.FilePickerManager;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -82,70 +78,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     private String shanLingWiFiTransferBaseUrl;
     private SharedPreferencesUtil sharedPreferencesUtil;
     private Stack<String> pathStack;
-    private MultipleAdapter multipleAdapter;
-
-    class MyMenuBar extends CustomMenuBar {
-        @Override
-        public void onMenuItemClick(@NotNull MenuItem menuItem, @NotNull MenuController menuController) {
-            int itemId = menuItem.getItemId();
-            switch (itemId) {
-                case R.id.menu_select_all:
-                    menuController.selectAll();
-                    break;
-                case R.id.menu_rename: {
-                    List<Integer> selectedIndexList = menuController.getSelect();
-                    if (selectedIndexList.size() > 1) {
-                        ToastUtil.showShortToast(MainActivity.this, R.string.message_rename_select_too_many_files);
-                    } else {
-//                        showRenameDialog();
-                    }
-                    break;
-                }
-                case R.id.menu_delete: {
-                    List<Integer> selectedIndexList = menuController.getSelect();
-                    List<Integer> deletedIndexList = new ArrayList<>();
-                    for (int index : selectedIndexList) {
-                        String deleteFilePath = shanLingFileModelList.get(index).getPath();
-                        ShanlingWiFiTransferRequest.delete(deleteFilePath, new Callback() {
-                            @Override
-                            public void onFailure(Call call, IOException e) {
-                                Log.d(TAG, "onFailure: " + e.getMessage());
-                            }
-
-                            @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                if (response.code() == 200) {
-                                    deletedIndexList.add(index);
-                                    if (index == selectedIndexList.get(selectedIndexList.size() - 1)) {
-                                        for (int index2 : deletedIndexList) {
-                                            shanLingFileModelList.remove(index2);
-                                        }
-                                        runOnUiThread(() -> {
-                                            multipleAdapter.notifyDataSetChanged();
-                                        });
-                                    }
-                                } else {
-                                    //TODO: delete failed
-                                }
-                            }
-                        });
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-
-        @Override
-        public void onUpdateTitle(int selectCount, int total) {
-            super.onUpdateTitle(selectCount, total);
-        }
-
-        public MyMenuBar(@NotNull Activity activity, int menuId, int menuBgColor, int gravity) {
-            super(activity, menuId, menuBgColor, gravity);
-        }
-    }
+    private ShanLingFileListAdapter shanLingFileListAdapter;
 
 
     @Override
@@ -199,56 +132,32 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListSwipeRefreshLayout.setOnRefreshListener(() -> refreshShanLingFileList(pathStack.peek()));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         shanLingFileListRecyclerView.setLayoutManager(layoutManager);
-        ShanLingFileListAdapter shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
-        shanLingFileListAdapter.setOnItemClickListener((view, position) -> {
-            ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
-            String newPath = shanLingFileModel.getPath();
-            if (newPath != null && !pathStack.peek().equals(newPath)) {
-                pathStack.push(newPath);
+        shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
+        shanLingFileListAdapter.setOnItemClickListener(new ShanLingFileListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
+                String newPath = shanLingFileModel.getPath();
+                if (newPath != null && !pathStack.peek().equals(newPath)) {
+                    pathStack.push(newPath);
+                }
+                refreshShanLingFileList(pathStack.peek());
             }
-            refreshShanLingFileList(pathStack.peek());
+
+            @Override
+            public boolean onItemLongClick(View view, int position) {
+                return true;
+            }
         });
-        multipleAdapter = MultipleSelect.with(this)
-                .adapter(shanLingFileListAdapter)
-                .linkList(shanLingFileModelList)
-                .decorateFactory(new ColorFactory())
-                .customMenu(new MyMenuBar(this, R.menu.selected_menu, ContextCompat.getColor(this, R.color.colorPrimary), Gravity.TOP))
-//                .stateChangeListener(new StateChangeListener() {
-//                    @Override
-//                    public void onSelectMode() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onSelect(int i, int i1) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onUnSelect(int i, int i1) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onDone(@NotNull ArrayList<Integer> arrayList) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onDelete(@NotNull ArrayList<Integer> arrayList) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onCancel() {
-//
-//                    }
-//                })
-                .build();
-        shanLingFileListRecyclerView.setAdapter(multipleAdapter);
+        shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
         uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.files_list_context_menu, menu);
+    }
 
     private void showRenameDialog(String oldFileName) {
         View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
@@ -382,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                         shanLingFileModelList.add(shanLingFileModel);
                     }
                     Collections.sort(shanLingFileModelList);
-                    runOnUiThread(() -> multipleAdapter.notifyDataSetChanged());
+                    runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
                     shanLingFileListSwipeRefreshLayout.setRefreshing(false);
                     currentPathTextView.setText(String.format(getResources().getString(R.string.message_current_path), pathStack.peek()));
                 } catch (JsonSyntaxException | IllegalStateException e) {

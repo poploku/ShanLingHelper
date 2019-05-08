@@ -28,7 +28,6 @@
     <string name="btn_cancel">取消</string>
     <string name="menu_exit">退出</string>
     <string name="menu_new_folder">新建文件夹</string>
-    <string name="menu_select_all">全选</string>
     <string name="menu_delete">删除</string>
     <string name="menu_rename">重命名</string>
     <string name="title_upload_activity">确认上传以下文件?</string>

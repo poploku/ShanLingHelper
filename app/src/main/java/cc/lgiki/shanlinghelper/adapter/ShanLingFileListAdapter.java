@@ -3,6 +3,7 @@ package cc.lgiki.shanlinghelper.adapter;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.TransitionRes;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -50,6 +51,8 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
             shanLingFileItemViewHolder.itemView.setClickable(true);
             shanLingFileItemViewHolder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(v, position));
         }
+        shanLingFileItemViewHolder.itemView.setLongClickable(true);
+        shanLingFileItemViewHolder.itemView.setOnLongClickListener(v -> onItemClickListener.onItemLongClick(v, position));
     }
 
     int getFileIconResourceId(ShanLingFileModel shanLingFileModel) {
@@ -86,6 +89,7 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
 
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
+        boolean onItemLongClick(View view, int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
