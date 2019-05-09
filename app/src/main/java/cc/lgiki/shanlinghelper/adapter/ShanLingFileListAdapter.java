@@ -20,6 +20,7 @@ import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
 import cc.lgiki.shanlinghelper.util.TextUtil;
 
 public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileItemViewHolder> {
+    private int position;
     Context context;
     List<ShanLingFileModel> shanLingFileModelList;
     private OnItemClickListener onItemClickListener;
@@ -52,8 +53,17 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
             shanLingFileItemViewHolder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(v, position));
         }
         shanLingFileItemViewHolder.itemView.setLongClickable(true);
-        shanLingFileItemViewHolder.itemView.setOnLongClickListener(v -> onItemClickListener.onItemLongClick(v, position));
+        shanLingFileItemViewHolder.itemView.setOnLongClickListener(v -> {
+            setPosition(position);
+            return false;
+        });
     }
+
+//    @Override
+//    public void onViewRecycled(@NonNull ShanLingFileItemViewHolder holder) {
+//        holder.itemView.setOnLongClickListener(null);
+//        super.onViewRecycled(holder);
+//    }
 
     int getFileIconResourceId(ShanLingFileModel shanLingFileModel) {
         int resourceId = R.drawable.ic_folder;
@@ -89,10 +99,17 @@ public class ShanLingFileListAdapter extends RecyclerView.Adapter<ShanLingFileIt
 
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
-        boolean onItemLongClick(View view, int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

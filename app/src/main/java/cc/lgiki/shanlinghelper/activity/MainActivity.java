@@ -80,13 +80,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
     private Stack<String> pathStack;
     private ShanLingFileListAdapter shanLingFileListAdapter;
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +98,22 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             MyApplication.setShanLingWiFiTransferBaseUrl(shanLingWiFiTransferBaseUrl);
             refreshShanLingFileList(pathStack.peek());
         }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        Log.d(TAG, "onContextItemSelected: ");
+        int itemId = item.getItemId();
+        int position = shanLingFileListAdapter.getPosition();
+        switch (itemId) {
+            case R.id.menu_delete:
+                break;
+            case R.id.menu_rename:
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 
     private void initView() {
@@ -130,34 +139,23 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 }
         );
         shanLingFileListSwipeRefreshLayout.setOnRefreshListener(() -> refreshShanLingFileList(pathStack.peek()));
+        registerForContextMenu(shanLingFileListRecyclerView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         shanLingFileListRecyclerView.setLayoutManager(layoutManager);
         shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
-        shanLingFileListAdapter.setOnItemClickListener(new ShanLingFileListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
-                String newPath = shanLingFileModel.getPath();
-                if (newPath != null && !pathStack.peek().equals(newPath)) {
-                    pathStack.push(newPath);
+        shanLingFileListAdapter.setOnItemClickListener((view, position) -> {
+                    ShanLingFileModel shanLingFileModel = shanLingFileModelList.get(position);
+                    String newPath = shanLingFileModel.getPath();
+                    if (newPath != null && !pathStack.peek().equals(newPath)) {
+                        pathStack.push(newPath);
+                    }
+                    refreshShanLingFileList(pathStack.peek());
                 }
-                refreshShanLingFileList(pathStack.peek());
-            }
-
-            @Override
-            public boolean onItemLongClick(View view, int position) {
-                return true;
-            }
-        });
+        );
         shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
         uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.files_list_context_menu, menu);
-    }
 
     private void showRenameDialog(String oldFileName) {
         View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
