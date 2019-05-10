@@ -1,6 +1,7 @@
 package cc.lgiki.shanlinghelper.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 
@@ -24,18 +25,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
-import android.text.Layout;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -45,6 +39,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,6 +57,7 @@ import me.rosuh.filepicker.config.FilePickerManager;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import pub.devrel.easypermissions.EasyPermissions;
 import studio.carbonylgroup.textfieldboxes.ExtendedEditText;
 import cc.lgiki.shanlinghelper.util.RegexUtil;
@@ -69,7 +66,7 @@ import cc.lgiki.shanlinghelper.util.ToastUtil;
 import studio.carbonylgroup.textfieldboxes.TextFieldBoxes;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.RationaleCallbacks, EasyPermissions.PermissionCallbacks {
-    private final String DEFAULT_PATH = "/mnt/mmc/";
+    final String DEFAULT_PATH = "/mnt/mmc/";
     private static final String TAG = "MainActivity";
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout shanLingFileListSwipeRefreshLayout;
@@ -102,13 +99,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        Log.d(TAG, "onContextItemSelected: ");
         int itemId = item.getItemId();
         int position = shanLingFileListAdapter.getPosition();
         switch (itemId) {
             case R.id.menu_delete:
+                showDeleteConfirmDialog(position);
                 break;
             case R.id.menu_rename:
+                showRenameDialog(position);
                 break;
             default:
                 break;
@@ -153,31 +151,96 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 }
         );
         shanLingFileListRecyclerView.setAdapter(shanLingFileListAdapter);
-        uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).forResult(FilePickerManager.REQUEST_CODE));
+        uploadButton.setOnClickListener((v) -> FilePickerManager.INSTANCE.from(this).setTheme(R.style.FilePickerTheme).forResult(FilePickerManager.REQUEST_CODE));
     }
 
 
-    private void showRenameDialog(String oldFileName) {
-        View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
+    private void showDeleteConfirmDialog(int position) {
+        ShanLingFileModel selectedFile = shanLingFileModelList.get(position);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.title_delete_confirm)
+                .setMessage(R.string.message_delete_confirm)
+                .setCancelable(true)
+                .setPositiveButton(R.string.btn_ok, (dialog, which) -> {
+                    ShanlingWiFiTransferRequest.delete(selectedFile.getPath(), new Callback() {
+                        @Override
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                            runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_delete_fail));
+                        }
+
+                        @Override
+                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                            if (response.code() == 200) {
+                                runOnUiThread(() -> {
+                                    shanLingFileModelList.remove(position);
+                                    shanLingFileListAdapter.notifyItemRemoved(position);
+                                    shanLingFileListAdapter.notifyItemRangeChanged(position, shanLingFileModelList.size());
+                                    ToastUtil.showShortToast(MainActivity.this, R.string.message_delete_success);
+                                });
+                            } else {
+                                runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_delete_fail));
+                            }
+                        }
+                    });
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+
+    private void showRenameDialog(int position) {
+        @SuppressLint("InflateParams") View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
         TextFieldBoxes textFieldBoxes = view.findViewById(R.id.text_field_boxes);
         ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
         textFieldBoxes.setLabelText(getResources().getString(R.string.message_new_file_name));
-        if (oldFileName != null) {
-            extendedEditText.setText(oldFileName);
+        ShanLingFileModel selectedFile = shanLingFileModelList.get(position);
+        String fileName, parentFolderPath, filePath = selectedFile.getPath();
+        if (filePath.endsWith("/")) {
+            // Folder
+            String[] tempArray = filePath.split("/");
+            fileName = tempArray[tempArray.length - 1];
+            parentFolderPath = filePath.substring(0, filePath.length() - fileName.length() + 2);
+        } else {
+            // Common file
+            fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+            parentFolderPath = filePath.substring(0, filePath.length() - fileName.length());
         }
+        extendedEditText.setText(fileName);
         new AlertDialog.Builder(this)
                 .setView(view)
                 .setTitle(R.string.title_input_new_file_name)
                 .setCancelable(true)
                 .setPositiveButton(R.string.btn_ok, (dialog, which) -> {
-                    //TODO: complete file rename action
+                    String newFileName = extendedEditText.getText().toString().trim();
+                    String newPath = parentFolderPath + newFileName;
+                    ShanlingWiFiTransferRequest.move(filePath, newPath, new Callback() {
+                        @Override
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                            runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_rename_fail));
+                        }
+
+                        @Override
+                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                            if (response.code() == 200) {
+                                selectedFile.setPath(newPath);
+                                selectedFile.setName(newFileName);
+                                runOnUiThread(() -> {
+                                    shanLingFileModelList.set(position, selectedFile);
+                                    shanLingFileListAdapter.notifyItemChanged(position);
+                                    ToastUtil.showShortToast(MainActivity.this, R.string.message_rename_success);
+                                });
+                            } else {
+                                runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_rename_fail));
+                            }
+                        }
+                    });
                 })
                 .setNegativeButton(R.string.btn_cancel, null)
                 .show();
     }
 
     private void showNewFolderDialog() {
-        View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
+        @SuppressLint("InflateParams") View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
         TextFieldBoxes textFieldBoxes = view.findViewById(R.id.text_field_boxes);
         ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
         textFieldBoxes.setLabelText(getResources().getString(R.string.message_new_folder_name));
@@ -189,13 +252,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     String folderName = extendedEditText.getText().toString().trim();
                     boolean requestResult = ShanlingWiFiTransferRequest.createFolder(pathStack.peek(), folderName, new Callback() {
                         @Override
-                        public void onFailure(Call call, IOException e) {
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
                             runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_create_folder_error));
                             Log.d(TAG, "onFailure: " + e.getMessage());
                         }
 
                         @Override
-                        public void onResponse(Call call, Response response) throws IOException {
+                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                             if (response.code() == 200) {
                                 runOnUiThread(() -> {
                                     ToastUtil.showShortToast(MainActivity.this, R.string.message_create_folder_success);
@@ -216,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
 
 
     private void showWiFiTransferUrlDialog() {
-        View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
+        @SuppressLint("InflateParams") View view = LayoutInflater.from(this).inflate(R.layout.alertdialog_input, null, false);
         TextFieldBoxes textFieldBoxes = view.findViewById(R.id.text_field_boxes);
         ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
         textFieldBoxes.setMaxCharacters(15);
@@ -266,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         shanLingFileListSwipeRefreshLayout.setRefreshing(true);
         boolean requestResult = ShanlingWiFiTransferRequest.getFileList(path, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 runOnUiThread(() -> {
                     ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error);
                     showWiFiTransferUrlDialog();
@@ -276,9 +339,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 try {
-                    String responseString = response.body().string();
+                    ResponseBody responseBody = response.body();
+                    if(responseBody == null) {
+                        //TODO: add toast hint message here
+                        return;
+                    }
+                    String responseString = responseBody.string();
                     JsonParser parser = new JsonParser();
                     JsonArray rootJsonArray = parser.parse(responseString).getAsJsonArray();
                     Gson gson = new Gson();
@@ -309,6 +377,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         if (!requestResult) {
             ToastUtil.showShortToast(MainActivity.this, R.string.message_connect_shanling_wifi_transfer_error);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

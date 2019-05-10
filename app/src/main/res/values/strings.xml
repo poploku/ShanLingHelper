@@ -22,7 +22,11 @@
     <string name="message_new_file_name">New File Name</string>
     <string name="message_create_folder_success">Create folder successfully</string>
     <string name="message_create_folder_error">Can not create folder</string>
-    <string name="message_rename_select_too_many_files">Select too many files, just rename for only one file please</string>
+    <string name="message_delete_confirm">Confirm to delete this file?</string>
+    <string name="message_delete_success">Successfully deleted</string>
+    <string name="message_delete_fail">Failed to delete</string>
+    <string name="message_rename_success">Successfully renamed</string>
+    <string name="message_rename_fail">Failed to rename</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="menu_exit">Exit</string>
@@ -33,4 +37,5 @@
     <string name="title_uploading">Upload files to Shanling player</string>
     <string name="title_input_new_folder_name">Please enter new folder name</string>
     <string name="title_input_new_file_name">Please enter new file name</string>
+    <string name="title_delete_confirm">Delete file</string>
 </resources>

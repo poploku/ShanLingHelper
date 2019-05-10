@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import cc.lgiki.shanlinghelper.R;
 
-public class ShanLingFileItemViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
+public class ShanLingFileItemViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
     public ImageView fileIcon;
     public TextView fileName;
     public TextView fileCreateTime;
@@ -24,6 +24,7 @@ public class ShanLingFileItemViewHolder extends RecyclerView.ViewHolder implemen
         fileName = itemView.findViewById(R.id.tv_file_name);
         fileCreateTime = itemView.findViewById(R.id.tv_file_create_time);
         fileSize = itemView.findViewById(R.id.tv_file_size);
+        itemView.setOnCreateContextMenuListener(this);
     }
 
     @Override
