@@ -77,7 +77,7 @@ public class UploadActivity extends AppCompatActivity {
         uploadFileListRecyclerView.setLayoutManager(layoutManager);
         uploadFileListAdapter = new UploadFileListAdapter(this, uploadFileList);
         uploadFileListRecyclerView.setAdapter(uploadFileListAdapter);
-//        uploadFileListRecyclerView.addItemDecoration(new SimplePaddingDecoration(25));
+        uploadFileListRecyclerView.addItemDecoration(new SimplePaddingDecoration(5));
         uploadPathTextView.setText(String.format(getResources().getString(R.string.message_file_will_upload_to), uploadPath));
         submitUploadButton.setOnClickListener((v -> {
             if (uploadPath != null && !"".equals(uploadPath) && uploadFileList.size() > 0) {

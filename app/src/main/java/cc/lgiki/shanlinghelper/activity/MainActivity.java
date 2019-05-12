@@ -51,6 +51,7 @@ import java.util.Stack;
 import cc.lgiki.shanlinghelper.MyApplication;
 import cc.lgiki.shanlinghelper.adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
+import cc.lgiki.shanlinghelper.decoration.SimplePaddingDecoration;
 import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
 import cc.lgiki.shanlinghelper.network.ShanlingWiFiTransferRequest;
 import me.rosuh.filepicker.config.FilePickerManager;
@@ -128,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
+        registerForContextMenu(shanLingFileListRecyclerView);
         getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
         shanLingFileListSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
         navigationView.setCheckedItem(R.id.nav_upload);
@@ -137,8 +139,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 }
         );
         shanLingFileListSwipeRefreshLayout.setOnRefreshListener(() -> refreshShanLingFileList(pathStack.peek()));
-        registerForContextMenu(shanLingFileListRecyclerView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        shanLingFileListRecyclerView.addItemDecoration(new SimplePaddingDecoration(5));
         shanLingFileListRecyclerView.setLayoutManager(layoutManager);
         shanLingFileListAdapter = new ShanLingFileListAdapter(this, shanLingFileModelList);
         shanLingFileListAdapter.setOnItemClickListener((view, position) -> {
@@ -342,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 try {
                     ResponseBody responseBody = response.body();
-                    if(responseBody == null) {
+                    if (responseBody == null) {
                         //TODO: add toast hint message here
                         return;
                     }
