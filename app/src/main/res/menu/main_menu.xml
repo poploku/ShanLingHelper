@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="@string/menu_new_folder" android:id="@+id/menu_new_folder" />
-    <item android:title="@string/menu_exit" android:id="@+id/menu_exit" />
+    <item
+        android:id="@+id/menu_new_folder"
+        android:title="@string/menu_new_folder" />
+    <item
+        android:id="@+id/menu_settings"
+        android:title="@string/menu_settings" />
+    <item
+        android:id="@+id/menu_exit"
+        android:title="@string/menu_exit" />
 </menu>

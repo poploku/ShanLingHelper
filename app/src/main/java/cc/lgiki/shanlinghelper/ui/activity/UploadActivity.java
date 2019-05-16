@@ -1,4 +1,4 @@
-package cc.lgiki.shanlinghelper.activity;
+package cc.lgiki.shanlinghelper.ui.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -26,7 +25,6 @@ import net.gotev.uploadservice.UploadInfo;
 import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadStatusDelegate;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,19 +33,13 @@ import cc.lgiki.shanlinghelper.R;
 import cc.lgiki.shanlinghelper.adapter.UploadFileListAdapter;
 import cc.lgiki.shanlinghelper.decoration.SimplePaddingDecoration;
 import cc.lgiki.shanlinghelper.model.ShanLingFileModel;
-import cc.lgiki.shanlinghelper.util.TextUtil;
 import cc.lgiki.shanlinghelper.util.ToastUtil;
 
 public class UploadActivity extends AppCompatActivity {
-    private static final String TAG = "UploadActivity";
     public static final int REQUEST_CODE = 10180;
-    private Toolbar toolbar;
     private List<ShanLingFileModel> uploadFileList;
     private String uploadPath;
     private String shanLingWiFiTransferBaseUrl;
-    private FloatingActionButton submitUploadButton;
-    private RecyclerView uploadFileListRecyclerView;
-    private UploadFileListAdapter uploadFileListAdapter;
     private ProgressDialog uploadProgressDialog;
 
     @Override
@@ -56,7 +48,9 @@ public class UploadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_upload);
         Intent intent = getIntent();
         uploadPath = intent.getStringExtra("uploadPath");
-//        uploadPath = TextUtil.urlDecode(uploadPath);
+        if (uploadPath == null) {
+            finish();
+        }
         initUploadFileListByFilePath(intent.getStringArrayListExtra("uploadFilePathList"));
         initData();
         initView();
@@ -64,9 +58,9 @@ public class UploadActivity extends AppCompatActivity {
 
     private void initView() {
         TextView uploadPathTextView = findViewById(R.id.tv_upload_to_path);
-        toolbar = findViewById(R.id.tb_upload);
-        uploadFileListRecyclerView = findViewById(R.id.rv_upload_file_list);
-        submitUploadButton = findViewById(R.id.fab_upload_submit);
+        Toolbar toolbar = findViewById(R.id.tb_upload);
+        RecyclerView uploadFileListRecyclerView = findViewById(R.id.rv_upload_file_list);
+        FloatingActionButton submitUploadButton = findViewById(R.id.fab_upload_submit);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -75,7 +69,7 @@ public class UploadActivity extends AppCompatActivity {
         }
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         uploadFileListRecyclerView.setLayoutManager(layoutManager);
-        uploadFileListAdapter = new UploadFileListAdapter(this, uploadFileList);
+        UploadFileListAdapter uploadFileListAdapter = new UploadFileListAdapter(this, uploadFileList);
         uploadFileListRecyclerView.setAdapter(uploadFileListAdapter);
         uploadFileListRecyclerView.addItemDecoration(new SimplePaddingDecoration(5));
         uploadPathTextView.setText(String.format(getResources().getString(R.string.message_file_will_upload_to), uploadPath));

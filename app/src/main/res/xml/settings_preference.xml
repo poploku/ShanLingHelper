@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/pref_category_title_app_settings">
+        <EditTextPreference
+            android:key="url"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_wifi_transfer_url" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_category_title_about">
+        <Preference
+            android:key="version"
+            android:title="@string/pref_title_version" />
+        <Preference
+            android:key="author"
+            android:summary="LGiki"
+            android:title="@string/pref_title_author" />
+    </PreferenceCategory>
+</PreferenceScreen>

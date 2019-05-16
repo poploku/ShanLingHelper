@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class SharedPreferencesUtil {
+    public final static String WIFI_TRANSFER_URL_KEY = "url";
+    public final static String MAIN_PREFERENCES_NAME = "config";
     private static SharedPreferencesUtil sharedPreferencesUtil;
     private static SharedPreferences sharedPreferences;
     private static SharedPreferences.Editor editor;
@@ -29,7 +31,7 @@ public class SharedPreferencesUtil {
         return sharedPreferences.getString(key, null);
     }
 
-    public void removeString(String key) {
+    public void removeKey(String key) {
         editor.remove(key);
         editor.commit();
     }

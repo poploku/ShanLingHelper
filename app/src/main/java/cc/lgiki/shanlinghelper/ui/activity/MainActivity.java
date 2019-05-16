@@ -1,4 +1,4 @@
-package cc.lgiki.shanlinghelper.activity;
+package cc.lgiki.shanlinghelper.ui.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -19,7 +19,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -430,6 +429,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                 break;
             case R.id.menu_new_folder:
                 showNewFolderDialog();
+                break;
+            case R.id.menu_settings:
+                SettingsActivity.actionStart(this);
                 break;
             default:
                 break;
