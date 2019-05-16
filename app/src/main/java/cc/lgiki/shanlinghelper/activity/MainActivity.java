@@ -19,6 +19,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -48,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import cc.lgiki.shanlinghelper.BuildConfig;
 import cc.lgiki.shanlinghelper.MyApplication;
 import cc.lgiki.shanlinghelper.adapter.ShanLingFileListAdapter;
 import cc.lgiki.shanlinghelper.R;
@@ -138,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                     return true;
                 }
         );
+        ((TextView) navigationView.getHeaderView(0).findViewById(R.id.tv_version_name)).setText(String.format(getResources().getString(R.string.app_name_and_version_name), getResources().getString(R.string.app_name), BuildConfig.VERSION_NAME));
         shanLingFileListSwipeRefreshLayout.setOnRefreshListener(() -> refreshShanLingFileList(pathStack.peek()));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         shanLingFileListRecyclerView.addItemDecoration(new SimplePaddingDecoration(5));
@@ -195,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         TextFieldBoxes textFieldBoxes = view.findViewById(R.id.text_field_boxes);
         ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
         textFieldBoxes.setLabelText(getResources().getString(R.string.message_new_file_name));
+        extendedEditText.requestFocus();
         ShanLingFileModel selectedFile = shanLingFileModelList.get(position);
         String fileName, parentFolderPath, filePath = selectedFile.getPath();
         if (filePath.endsWith("/")) {
@@ -246,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         TextFieldBoxes textFieldBoxes = view.findViewById(R.id.text_field_boxes);
         ExtendedEditText extendedEditText = view.findViewById(R.id.extended_edit_text);
         textFieldBoxes.setLabelText(getResources().getString(R.string.message_new_folder_name));
+        extendedEditText.requestFocus();
         new AlertDialog.Builder(this)
                 .setView(view)
                 .setTitle(R.string.title_input_new_folder_name)
@@ -288,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
         textFieldBoxes.setLabelText("URL");
         extendedEditText.setPrefix("http://");
         extendedEditText.setSuffix(":8888");
+        extendedEditText.requestFocus();
         new AlertDialog.Builder(this)
                 .setTitle(R.string.hint_enter_shanling_url)
                 .setView(view)

@@ -27,6 +27,7 @@
     <string name="message_delete_fail">Failed to delete</string>
     <string name="message_rename_success">Successfully renamed</string>
     <string name="message_rename_fail">Failed to rename</string>
+    <string name="app_name_and_version_name">%1$s v%2$s</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="menu_exit">Exit</string>

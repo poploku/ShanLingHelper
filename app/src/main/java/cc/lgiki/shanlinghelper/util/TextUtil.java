@@ -1,5 +1,10 @@
 package cc.lgiki.shanlinghelper.util;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+
+import androidx.fragment.app.FragmentActivity;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
