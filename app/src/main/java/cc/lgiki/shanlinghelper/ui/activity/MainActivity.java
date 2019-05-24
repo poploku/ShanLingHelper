@@ -364,9 +364,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
                         shanLingFileModelList.add(shanLingFileModel);
                     }
                     Collections.sort(shanLingFileModelList);
-                    runOnUiThread(() -> shanLingFileListAdapter.notifyDataSetChanged());
+                    runOnUiThread(() -> {
+                        shanLingFileListAdapter.notifyDataSetChanged();
+                        currentPathTextView.setText(String.format(getResources().getString(R.string.message_current_path), pathStack.peek()));
+                    });
                     shanLingFileListSwipeRefreshLayout.setRefreshing(false);
-                    currentPathTextView.setText(String.format(getResources().getString(R.string.message_current_path), pathStack.peek()));
                 } catch (JsonSyntaxException | IllegalStateException e) {
                     e.printStackTrace();
                     runOnUiThread(() -> ToastUtil.showShortToast(MainActivity.this, R.string.message_shanling_file_json_parse_error));

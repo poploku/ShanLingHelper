@@ -11,11 +11,12 @@ import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class TextUtil {
     public static String timestampInSecondToString(Long timestamp) {
         if (timestamp != null) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
             return simpleDateFormat.format(new Date(timestamp * 1000));
         } else {
             return null;
@@ -24,7 +25,7 @@ public class TextUtil {
 
     public static String timestamInMillisecondToString(Long timestamp) {
         if (timestamp != null) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
             return simpleDateFormat.format(new Date(timestamp));
         } else {
             return null;
@@ -34,34 +35,13 @@ public class TextUtil {
     public static String convertByteToMegabyte(Long bytes) {
         if (bytes != null) {
             DecimalFormat decimalFormat = new DecimalFormat("#.00");
-            return decimalFormat.format(bytes / 1024 / 1024.0);
+            StringBuilder stringBuilder = new StringBuilder(decimalFormat.format((double) bytes / 1024 / 1024));
+            if (stringBuilder.toString().startsWith(".")) {
+                stringBuilder.insert(0, "0");
+            }
+            return stringBuilder.toString();
         } else {
             return null;
         }
-    }
-
-    public static String urlEncode(String str) {
-        String result = str;
-        try {
-            result = URLEncoder.encode(str, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-
-    public static String urlDecode(String str) {
-        String result = str;
-        try {
-            result = URLDecoder.decode(str, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
     }
 }
