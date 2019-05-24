@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.R
             // Folder
             String[] tempArray = filePath.split("/");
             fileName = tempArray[tempArray.length - 1];
-            parentFolderPath = filePath.substring(0, filePath.length() - fileName.length() + 2);
+            parentFolderPath = filePath.substring(0, filePath.length() - fileName.length() - 1);
         } else {
             // Common file
             fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
