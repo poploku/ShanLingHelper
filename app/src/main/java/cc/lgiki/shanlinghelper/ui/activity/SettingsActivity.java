@@ -3,6 +3,7 @@ package cc.lgiki.shanlinghelper.ui.activity;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -30,10 +31,8 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.setting_fragment_layout, new SettingsFragment());
-        fragmentTransaction.commit();
+        actionRestartFragment();
+        getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.colorPrimary));
     }
 
     @Override
